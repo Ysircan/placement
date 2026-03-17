@@ -369,7 +369,17 @@ export default function PlacementPage() {
         />
       )}
 
-   {step === "result" && <ResultScreen />}
+  {step === "result" && (
+  <ResultScreen
+    score={score}
+    total={totalQuestions}
+    level="TBD"
+    difficultyStats={difficultyStats}
+    readingStats={readingStats}
+    listeningStats={listeningStats}
+    onRestart={handleRestart}
+  />
+)}
 
     </>
   );

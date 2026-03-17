@@ -1,8 +1,60 @@
 "use client";
 
 import styles from "./ResultScreen.module.css";
+import type { ResultScreenProps } from "@/lib/types/resultTypes";
 
-export default function ResultScreen() {
+export default function ResultScreen({
+  score,
+  total,
+  difficultyStats,
+  readingStats,
+  listeningStats,
+  onRestart,
+}: ResultScreenProps) {
+  const toPercent = (correct: number, totalCount: number) => {
+    if (!totalCount) return 0;
+    return Math.round((correct / totalCount) * 100);
+  };
+
+  const foundationA = toPercent(
+    difficultyStats.A.correct,
+    difficultyStats.A.total
+  );
+  const foundationB = toPercent(
+    difficultyStats.B.correct,
+    difficultyStats.B.total
+  );
+  const foundationC = toPercent(
+    difficultyStats.C.correct,
+    difficultyStats.C.total
+  );
+  const foundationScore = Math.round(
+    (foundationA + foundationB + foundationC) / 3
+  );
+
+  const transitionA = 0;
+  const transitionB = toPercent(readingStats.B.correct, readingStats.B.total);
+  const transitionC = toPercent(readingStats.C.correct, readingStats.C.total);
+  const transitionScore = Math.round(
+    (transitionA + transitionB + transitionC) / 3
+  );
+
+  const listeningA = toPercent(
+    listeningStats.A.correct,
+    listeningStats.A.total
+  );
+  const listeningB = toPercent(
+    listeningStats.B.correct,
+    listeningStats.B.total
+  );
+  const listeningC = toPercent(
+    listeningStats.C.correct,
+    listeningStats.C.total
+  );
+  const listeningScore = Math.round(
+    (listeningA + listeningB + listeningC) / 3
+  );
+
   return (
     <div className={styles.shell}>
       <header className={styles.topbar}>
@@ -24,7 +76,9 @@ export default function ResultScreen() {
 
               <div className={styles.scoreGrid}>
                 <div className={styles.scoreRow}>
-                  <div className={styles.scoreBox}>50–55</div>
+                  <div className={styles.scoreBox}>
+                    {score} / {total}
+                  </div>
                   <div className={styles.scoreMeta}>
                     <h4>Estimated Score Range</h4>
                     <p>
@@ -95,6 +149,9 @@ export default function ResultScreen() {
               <button className={styles.cta} type="button">
                 Enroll in Structured Upgrade Program
               </button>
+              <button className={styles.cta} type="button" onClick={onRestart}>
+                Retake Exam
+              </button>
             </div>
           </div>
         </aside>
@@ -131,7 +188,7 @@ export default function ResultScreen() {
               </div>
 
               <div className={`${styles.metricNumber} ${styles.orangeText}`}>
-                50
+                {foundationScore}
               </div>
               <div className={styles.metricStatus}>
                 Below Target Stability Range
@@ -149,10 +206,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillGreen}`}
-                      style={{ width: "50%" }}
+                      style={{ width: `${foundationA}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>50%</div>
+                  <div className={styles.pct}>{foundationA}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -160,10 +217,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillOrange}`}
-                      style={{ width: "13%" }}
+                      style={{ width: `${foundationB}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>13%</div>
+                  <div className={styles.pct}>{foundationB}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -171,10 +228,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillOrange}`}
-                      style={{ width: "33%" }}
+                      style={{ width: `${foundationC}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>33%</div>
+                  <div className={styles.pct}>{foundationC}%</div>
                 </div>
               </div>
             </div>
@@ -186,7 +243,7 @@ export default function ResultScreen() {
               </div>
 
               <div className={`${styles.metricNumber} ${styles.redText}`}>
-                13
+                {transitionScore}
               </div>
               <div className={styles.metricStatus}>
                 Level Progression Currently Blocked
@@ -204,10 +261,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillGreen}`}
-                      style={{ width: "50%" }}
+                      style={{ width: `${transitionA}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>50%</div>
+                  <div className={styles.pct}>{transitionA}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -215,10 +272,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillRed}`}
-                      style={{ width: "13%" }}
+                      style={{ width: `${transitionB}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>13%</div>
+                  <div className={styles.pct}>{transitionB}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -226,10 +283,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillOrange}`}
-                      style={{ width: "33%" }}
+                      style={{ width: `${transitionC}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>33%</div>
+                  <div className={styles.pct}>{transitionC}%</div>
                 </div>
               </div>
             </div>
@@ -241,7 +298,7 @@ export default function ResultScreen() {
               </div>
 
               <div className={`${styles.metricNumber} ${styles.redText}`}>
-                18
+                {listeningScore}
               </div>
               <div className={styles.metricStatus}>Critical Gap Detected</div>
               <div className={styles.metricDesc}>
@@ -257,10 +314,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillRed}`}
-                      style={{ width: "22%" }}
+                      style={{ width: `${listeningA}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>22%</div>
+                  <div className={styles.pct}>{listeningA}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -268,10 +325,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillRed}`}
-                      style={{ width: "15%" }}
+                      style={{ width: `${listeningB}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>15%</div>
+                  <div className={styles.pct}>{listeningB}%</div>
                 </div>
 
                 <div className={styles.barRow}>
@@ -279,10 +336,10 @@ export default function ResultScreen() {
                   <div className={styles.track}>
                     <div
                       className={`${styles.fill} ${styles.fillOrange}`}
-                      style={{ width: "0%" }}
+                      style={{ width: `${listeningC}%` }}
                     />
                   </div>
-                  <div className={styles.pct}>0%</div>
+                  <div className={styles.pct}>{listeningC}%</div>
                 </div>
               </div>
             </div>

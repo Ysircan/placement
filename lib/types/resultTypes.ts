@@ -19,8 +19,8 @@ export type ResultScreenProps = {
   score: number;
   total: number;
   level: string;
-  difficultyStats?: DifficultyStats;
-  readingStats?: ReadingStats;
-  listeningStats?: ListeningStats;
+  difficultyStats: DifficultyStats;
+  readingStats: ReadingStats;
+  listeningStats: ListeningStats;
   onRestart: () => void;
 };
