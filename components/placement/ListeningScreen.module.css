@@ -1,0 +1,252 @@
+:root{
+  --yellow:#ffd43b;
+  --border:#111;
+  --bg:#f3f4f6;
+  --card:#ffffff;
+}
+
+/* ======================= */
+/* layout */
+/* ======================= */
+
+.wrapper{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:40px 20px;
+  color:#111;
+}
+
+.container{
+  width:100%;
+  max-width:720px;
+}
+
+/* ======================= */
+/* header */
+/* ======================= */
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.title{
+  font-size:26px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.subtitle{
+  color:#6b7280;
+  font-size:16px;
+}
+
+/* ======================= */
+/* question */
+/* ======================= */
+
+.question{
+  font-size:26px;
+  font-weight:600;
+  margin-bottom:28px;
+  text-align:center;
+}
+
+/* ======================= */
+/* options area */
+/* ======================= */
+
+.options{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+/* play button */
+
+.option{
+
+  width:260px;
+
+  background:white;
+  padding:12px 18px;
+
+  border:2px solid var(--border);
+  border-radius:14px;
+
+  font-size:15px;
+  text-align:center;
+
+  cursor:pointer;
+
+  box-shadow:0 0 0 var(--border);
+
+  transition:
+  transform .12s ease,
+  box-shadow .12s ease,
+  background .12s ease;
+}
+
+.option:hover{
+  transform:translate(-1px,-1px);
+  box-shadow:2px 2px 0 var(--border);
+  background:#fffdf4;
+}
+
+/* ======================= */
+/* listening input */
+/* ======================= */
+
+.answerInput{
+
+  width:100%;
+  max-width:420px;
+
+  padding:14px 16px;
+
+  border:2px solid var(--border);
+  border-radius:14px;
+
+  font-size:16px;
+
+  outline:none;
+
+  box-shadow:0 0 0 var(--border);
+
+  transition:
+  transform .12s ease,
+  box-shadow .12s ease;
+}
+
+.answerInput:focus{
+
+  transform:translate(-2px,-2px);
+  box-shadow:4px 4px 0 var(--border);
+
+}
+
+/* ======================= */
+/* CTA */
+/* ======================= */
+
+.ctaArea{
+  display:flex;
+  justify-content:center;
+  margin-top:40px;
+}
+
+.nextBtn{
+  background:var(--yellow);
+  border:2px solid var(--border);
+  padding:14px 36px;
+  font-size:17px;
+  font-weight:600;
+  border-radius:14px;
+  cursor:pointer;
+  box-shadow:5px 5px 0 var(--border);
+  transition:all .15s ease;
+}
+
+.nextBtn:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:7px 7px 0 var(--border);
+}
+/* ======================= */
+/* listening audio */
+/* ======================= */
+
+.audioArea{
+  margin-top:16px;
+}
+
+.audioPlayer{
+  width:100%;
+}
+
+.audioHint{
+  margin-top:10px;
+  font-size:14px;
+  color:#64748b;
+}
+
+/* ======================= */
+/* listening textarea */
+/* ======================= */
+
+.listenTextarea{
+
+  margin-top:18px;
+
+  width:100%;
+  min-height:120px;
+
+  border:2px solid var(--border);
+  border-radius:14px;
+
+  padding:14px;
+
+  font-size:16px;
+
+  resize:none;
+
+  outline:none;
+
+  box-shadow:0 0 0 var(--border);
+
+  transition:
+  transform .12s ease,
+  box-shadow .12s ease;
+
+}
+
+.listenTextarea:focus{
+
+  transform:translate(-2px,-2px);
+  box-shadow:4px 4px 0 var(--border);
+
+}
+
+/* ======================= */
+/* mobile */
+/* ======================= */
+
+@media (max-width:640px){
+
+  .wrapper{
+    padding:24px 16px;
+  }
+
+  .title{
+    font-size:22px;
+  }
+
+  .subtitle{
+    font-size:14px;
+  }
+
+  .question{
+    font-size:20px;
+  }
+
+  .option{
+    width:100%;
+    max-width:280px;
+  }
+
+  .answerInput{
+    width:100%;
+    max-width:320px;
+  }
+
+  .nextBtn{
+    padding:14px 28px;
+    font-size:16px;
+  }
+
+}

@@ -1,0 +1,98 @@
+:root{
+  --yellow:#ffd43b;
+  --border:#111;
+  --bg:#f3f4f6;
+}
+
+/* 外层布局 */
+.container{
+  width:100%;
+  max-width:720px;
+  padding:40px;
+  margin:0 auto;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  color:#111;
+}
+
+/* 卡片 */
+.card{
+  background:#ffffff;
+  padding:50px;
+  border:2px solid var(--border);
+  border-radius:18px;
+  box-shadow:6px 6px 0 var(--border);
+  text-align:center;
+}
+
+/* 标题 */
+.title{
+  font-size:30px;
+  font-weight:700;
+  margin-bottom:20px;
+  color:#111;
+}
+
+/* 描述文字 */
+.desc{
+  font-size:18px;
+  color:#4b5563;
+  margin-bottom:30px;
+  line-height:1.5;
+}
+
+/* 按钮 */
+.btn{
+  margin-top:30px;
+  background:var(--yellow);
+  border:2px solid var(--border);
+  padding:14px 36px;
+  font-size:18px;
+  font-weight:600;
+  border-radius:14px;
+  cursor:pointer;
+  box-shadow:5px 5px 0 var(--border);
+  transition:all .15s ease;
+  color:#111;
+}
+
+/* hover效果 */
+.btn:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:7px 7px 0 var(--border);
+}
+
+/* 点击效果 */
+.btn:active{
+  transform:translate(1px,1px);
+  box-shadow:3px 3px 0 var(--border);
+}
+
+
+/* ========================= */
+/* 移动端适配 */
+/* ========================= */
+
+@media (max-width:640px){
+
+  .container{
+    padding:20px;
+  }
+
+  .card{
+    padding:30px 24px;
+  }
+
+  .title{
+    font-size:24px;
+  }
+
+  .desc{
+    font-size:16px;
+  }
+
+  .btn{
+    padding:12px 24px;
+    font-size:16px;
+  }
+
+}
