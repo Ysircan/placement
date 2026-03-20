@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import StartScreen from "@/components/placement/StartScreen";
+import PreTestIntro from "@/components/placement/PreTestIntro";
 import SectionIntro from "@/components/placement/SectionIntro";
 import QuestionScreen from "@/components/placement/QuestionScreen";
 import ResultScreen from "@/components/placement/ResultScreen";
@@ -10,10 +11,12 @@ import ReadingScreen from "@/components/placement/ReadingScreen";
 import ListeningScreen from "@/components/placement/ListeningScreen";
 import { gradeWFD } from "@/lib/scoring/gradeWFD";
 
-import { questions } from "@/lib/placement/questions";
+import { questions as quickQuestions } from "@/lib/placement/quickQuestions";
+import { questions as fullQuestions } from "@/lib/placement/fullQuestions";
 
 type Step =
   | "start"
+  | "preTestIntro"
   | "vocabIntro"
   | "vocabQuestion"
   | "readingIntro"
@@ -34,8 +37,6 @@ type ReadingStats = {
   C: { correct: number; total: number };
 };
 
-/* 新增 ListeningStats */
-
 type ListeningStats = {
   A: { correct: number; total: number };
   B: { correct: number; total: number };
@@ -49,6 +50,9 @@ type SavedProgress = {
   score: number;
   difficultyStats: DifficultyStats;
   readingStats: ReadingStats;
+  studentName: string;
+  targetScore: string;
+  selectedExam: string;
 };
 
 const DEFAULT_DIFFICULTY_STATS: DifficultyStats = {
@@ -62,8 +66,6 @@ const DEFAULT_READING_STATS: ReadingStats = {
   C: { correct: 0, total: 0 },
 };
 
-/* 新增默认 Listening */
-
 const DEFAULT_LISTENING_STATS: ListeningStats = {
   A: { correct: 0, total: 0 },
   B: { correct: 0, total: 0 },
@@ -73,7 +75,6 @@ const DEFAULT_LISTENING_STATS: ListeningStats = {
 const STORAGE_KEY = "placement_progress";
 
 export default function PlacementPage() {
-
   const [step, setStep] = useState<Step>("start");
 
   const [vocabIndex, setVocabIndex] = useState<number>(0);
@@ -89,24 +90,27 @@ export default function PlacementPage() {
   const [readingStats, setReadingStats] =
     useState<ReadingStats>(DEFAULT_READING_STATS);
 
-  /* 新增 listening state */
-
   const [listeningStats, setListeningStats] =
     useState<ListeningStats>(DEFAULT_LISTENING_STATS);
 
-  const currentQuestion = questions.vocabulary[vocabIndex];
+  const [studentName, setStudentName] = useState<string>("");
+  const [targetScore, setTargetScore] = useState<string>("");
+  const [selectedExam, setSelectedExam] = useState<string>("");
+
+  const activeQuestions =
+    selectedExam === "full" ? fullQuestions : quickQuestions;
+
+  const currentQuestion = activeQuestions.vocabulary[vocabIndex];
 
   const totalQuestions = useMemo(() => {
     return (
-      questions.vocabulary.length +
-      questions.readingPassages.reduce(
+      activeQuestions.vocabulary.length +
+      activeQuestions.readingPassages.reduce(
         (sum, passage) => sum + passage.blanks.length,
         0
       )
     );
-  }, []);
-
-  /* restore progress */
+  }, [activeQuestions]);
 
   useEffect(() => {
     try {
@@ -121,13 +125,13 @@ export default function PlacementPage() {
       setScore(parsed.score ?? 0);
       setDifficultyStats(parsed.difficultyStats ?? DEFAULT_DIFFICULTY_STATS);
       setReadingStats(parsed.readingStats ?? DEFAULT_READING_STATS);
+      setStudentName(parsed.studentName ?? "");
+      setTargetScore(parsed.targetScore ?? "");
+      setSelectedExam(parsed.selectedExam ?? "");
     } catch {}
   }, []);
 
-  /* save progress */
-
   useEffect(() => {
-
     const progress: SavedProgress = {
       step,
       vocabIndex,
@@ -135,20 +139,28 @@ export default function PlacementPage() {
       score,
       difficultyStats,
       readingStats,
+      studentName,
+      targetScore,
+      selectedExam,
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-
-  }, [step, vocabIndex, readingPassageIndex, score, difficultyStats, readingStats]);
-
-  /* VOCAB */
+  }, [
+    step,
+    vocabIndex,
+    readingPassageIndex,
+    score,
+    difficultyStats,
+    readingStats,
+    studentName,
+    targetScore,
+    selectedExam,
+  ]);
 
   const handleVocabNext = () => {
-
     if (!currentQuestion) return;
 
     const storageKey = `placement_vocab_answer_${vocabIndex + 1}`;
-
     const selected = localStorage.getItem(storageKey);
 
     const correct =
@@ -172,19 +184,15 @@ export default function PlacementPage() {
 
     const next = vocabIndex + 1;
 
-    if (next < questions.vocabulary.length) {
+    if (next < activeQuestions.vocabulary.length) {
       setVocabIndex(next);
     } else {
       setStep("readingIntro");
     }
-
   };
 
-  /* READING */
-
   const handleReadingNext = (answers: Record<number, string>) => {
-
-    const passage = questions.readingPassages[readingPassageIndex];
+    const passage = activeQuestions.readingPassages[readingPassageIndex];
     if (!passage) return;
 
     let addedScore = 0;
@@ -195,11 +203,8 @@ export default function PlacementPage() {
     };
 
     passage.blanks.forEach((blank) => {
-
       const difficulty = blank.difficulty as "B" | "C";
-
       const userAnswer = answers[blank.blankNumber];
-
       const correct = userAnswer === blank.correctOption;
 
       delta[difficulty].total += 1;
@@ -208,7 +213,6 @@ export default function PlacementPage() {
         delta[difficulty].correct += 1;
         addedScore += 1;
       }
-
     });
 
     setReadingStats((prev) => ({
@@ -226,18 +230,14 @@ export default function PlacementPage() {
       setScore((prev) => prev + addedScore);
     }
 
-    if (readingPassageIndex + 1 < questions.readingPassages.length) {
+    if (readingPassageIndex + 1 < activeQuestions.readingPassages.length) {
       setReadingPassageIndex((prev) => prev + 1);
     } else {
       setStep("listeningIntro");
     }
-
   };
 
-  /* RESET */
-
   const handleRestart = () => {
-
     localStorage.removeItem(STORAGE_KEY);
 
     setScore(0);
@@ -246,16 +246,28 @@ export default function PlacementPage() {
     setDifficultyStats(DEFAULT_DIFFICULTY_STATS);
     setReadingStats(DEFAULT_READING_STATS);
     setListeningStats(DEFAULT_LISTENING_STATS);
+    setStudentName("");
+    setTargetScore("");
+    setSelectedExam("");
     setStep("start");
-
   };
 
   return (
     <>
-
       {step === "start" && (
         <StartScreen
-          onStart={() => setStep("vocabIntro")}
+          onStart={() => setStep("preTestIntro")}
+        />
+      )}
+
+      {step === "preTestIntro" && (
+        <PreTestIntro
+          onComplete={({ studentName, targetScore, selectedExam }) => {
+            setStudentName(studentName);
+            setTargetScore(targetScore);
+            setSelectedExam(selectedExam);
+            setStep("vocabIntro");
+          }}
         />
       )}
 
@@ -271,7 +283,7 @@ export default function PlacementPage() {
       {step === "vocabQuestion" && currentQuestion && (
         <QuestionScreen
           questionNumber={vocabIndex + 1}
-          totalQuestions={questions.vocabulary.length}
+          totalQuestions={activeQuestions.vocabulary.length}
           question={currentQuestion.prompt}
           options={currentQuestion.options.map((o) => o.text)}
           onSelect={() => {}}
@@ -291,10 +303,10 @@ export default function PlacementPage() {
       {step === "readingQuestion" && (
         <ReadingScreen
           key={readingPassageIndex}
-          passage={questions.readingPassages[readingPassageIndex].body}
-          blanks={questions.readingPassages[readingPassageIndex].blanks}
+          passage={activeQuestions.readingPassages[readingPassageIndex].body}
+          blanks={activeQuestions.readingPassages[readingPassageIndex].blanks}
           passageIndex={readingPassageIndex}
-          totalPassages={questions.readingPassages.length}
+          totalPassages={activeQuestions.readingPassages.length}
           onNext={handleReadingNext}
         />
       )}
@@ -310,9 +322,8 @@ export default function PlacementPage() {
 
       {step === "listeningQuestion" && (
         <ListeningScreen
-          items={questions.listening.wfdItems}
+          items={activeQuestions.listening.wfdItems}
           onFinish={(answers) => {
-
             let listeningScore = 0;
 
             const delta: ListeningStats = {
@@ -321,8 +332,7 @@ export default function PlacementPage() {
               C: { correct: 0, total: 0 },
             };
 
-            questions.listening.wfdItems.forEach((q, i) => {
-
+            activeQuestions.listening.wfdItems.forEach((q, i) => {
               const result = gradeWFD(
                 q.expectedText,
                 answers[i] ?? ""
@@ -334,7 +344,6 @@ export default function PlacementPage() {
               delta[difficulty].total += result.total;
 
               listeningScore += result.correct;
-
             });
 
             setListeningStats((prev) => ({
@@ -353,9 +362,7 @@ export default function PlacementPage() {
             }));
 
             setScore((prev) => prev + listeningScore);
-
             setStep("listeningComplete");
-
           }}
         />
       )}
@@ -369,18 +376,21 @@ export default function PlacementPage() {
         />
       )}
 
-  {step === "result" && (
-  <ResultScreen
-    score={score}
-    total={totalQuestions}
-    level="TBD"
-    difficultyStats={difficultyStats}
-    readingStats={readingStats}
-    listeningStats={listeningStats}
-    onRestart={handleRestart}
-  />
-)}
-
+      {step === "result" && (
+        <ResultScreen
+          score={score}
+          total={totalQuestions}
+          level="TBD"
+          difficultyStats={difficultyStats}
+          readingStats={readingStats}
+          listeningStats={listeningStats}
+          studentName={studentName}
+          targetScore={targetScore}
+          testDate={new Date().toLocaleDateString("zh-CN")}
+          selectedExam={selectedExam}
+          onRestart={handleRestart}
+        />
+      )}
     </>
   );
 }

@@ -22,5 +22,9 @@ export type ResultScreenProps = {
   difficultyStats: DifficultyStats;
   readingStats: ReadingStats;
   listeningStats: ListeningStats;
+  studentName: string;
+  targetScore: string;
+  testDate: string;
+  selectedExam: string;
   onRestart: () => void;
 };

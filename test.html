@@ -3,755 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Diagnostic Dashboard</title>
+  <title>English Diagnostic</title>
   <style>
-    :root {
-      --bg: #e6e7eb;
-      --panel: #f7f7f4;
-      --card: #fbfbf8;
-      --line: #111111;
-      --text: #111111;
-      --muted: #6b7280;
-      --blue: #24359b;
-      --yellow: #f4cf17;
-      --green-bg: #dfe9dc;
-      --green-text: #2f6b36;
-      --red: #d92d20;
-      --orange: #f59e0b;
-      --shadow: 8px 8px 0 #111111;
-      --radius-xl: 30px;
-      --radius-lg: 24px;
-      --radius-md: 20px;
-      --radius-sm: 16px;
+    :root{
+      --yellow:#ffd43b;
+      --border:#111;
+      --bg:#f3f4f6;
+      --text:#111;
+      --muted:#4b5563;
+      --white:#ffffff;
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+    *{
+      box-sizing:border-box;
     }
 
-    .shell {
-      width: min(1400px, calc(100vw - 32px));
-      margin: 18px auto;
-      background: var(--panel);
-      border: 3px solid var(--line);
-      border-radius: 34px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      padding: 18px 22px;
-      border-bottom: 3px solid var(--line);
-      background: rgba(255,255,255,0.42);
+    .container{
+      width:100%;
+      max-width:720px;
+      padding:40px;
+      margin:0 auto;
     }
 
-    .top-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
+    .card{
+      background:var(--white);
+      padding:50px;
+      border:2px solid var(--border);
+      border-radius:18px;
+      box-shadow:6px 6px 0 var(--border);
     }
 
-    .dots {
-      display: flex;
-      gap: 10px;
-      flex-shrink: 0;
+    .step{
+      display:inline-block;
+      font-size:14px;
+      font-weight:600;
+      color:var(--muted);
+      margin-bottom:18px;
     }
 
-    .dot {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #f4f4f1;
+    .title{
+      font-size:34px;
+      font-weight:700;
+      line-height:1.2;
+      margin:0 0 16px;
+      color:var(--text);
     }
 
-    .brand {
-      font-weight: 900;
-      font-size: 18px;
-      letter-spacing: -0.03em;
-      white-space: nowrap;
+    .desc{
+      font-size:18px;
+      color:var(--muted);
+      margin:0 0 30px;
+      line-height:1.6;
+      max-width:520px;
     }
 
-    .top-right {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 10px;
+    .inputWrap{
+      margin-bottom:34px;
     }
 
-    .pill {
-      padding: 10px 14px;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #ffffff;
-      font-size: 14px;
-      font-weight: 800;
-      box-shadow: 4px 4px 0 var(--line);
-      white-space: nowrap;
+    .input{
+      width:100%;
+      height:60px;
+      border:2px solid var(--border);
+      border-radius:14px;
+      padding:0 18px;
+      font-size:17px;
+      color:var(--text);
+      background:#fff;
+      outline:none;
+      box-shadow:none;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     }
 
-    .main {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      min-height: 860px;
+    .input::placeholder{
+      color:#9ca3af;
     }
 
-    .sidebar {
-      padding: 28px 22px;
-      border-right: 3px solid var(--line);
-      background: linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(255,255,255,0.08));
+    .input:hover,
+    .input:focus{
+      transform:translate(-2px,-2px);
+      box-shadow:6px 6px 0 var(--border);
     }
 
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+    .footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
     }
 
-    .panel-card {
-      background: var(--card);
-      border: 3px solid var(--line);
-      border-radius: var(--radius-lg);
-      box-shadow: 6px 6px 0 var(--line);
-      padding: 18px;
+    .backBtn,
+    .btn{
+      border:2px solid var(--border);
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:600;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+      box-shadow:none;
+      color:var(--text);
     }
 
-    .section-kicker {
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
+    .backBtn{
+      background:#fff;
+      padding:12px 22px;
+      font-size:16px;
     }
 
-    .score-grid {
-      display: grid;
-      gap: 12px;
+    .btn{
+      background:var(--yellow);
+      padding:14px 36px;
+      font-size:18px;
     }
 
-    .score-row {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      gap: 12px;
-      align-items: center;
+    .backBtn:hover,
+    .btn:hover{
+      transform:translate(-2px,-2px);
+      box-shadow:6px 6px 0 var(--border);
     }
 
-    .score-box {
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 3px solid var(--line);
-      border-radius: 18px;
-      background: #fff;
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
+    .backBtn:active,
+    .btn:active{
+      transform:translate(1px,1px);
+      box-shadow:2px 2px 0 var(--border);
     }
 
-    .score-meta h4 {
-      margin: 0 0 2px;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
-    .score-meta p {
-      margin: 0;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .red {
-      color: var(--red);
-    }
-
-    .path-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .path-step {
-      border: 2px solid var(--line);
-      border-radius: 18px;
-      background: #fff;
-      padding: 12px 14px;
-    }
-
-    .path-step strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .path-step span {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .green-panel {
-      background: var(--green-bg);
-      color: var(--green-text);
-    }
-
-    .green-panel .big {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      margin-top: 6px;
-      line-height: 1.1;
-    }
-
-    .cta-wrap {
-      display: grid;
-      gap: 10px;
-    }
-
-    .cta-note {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--muted);
-    }
-
-    .cta {
-      border: 3px solid var(--line);
-      border-radius: 22px;
-      background: var(--yellow);
-      padding: 18px 16px;
-      font-size: 17px;
-      font-weight: 900;
-      box-shadow: 6px 6px 0 var(--line);
-      cursor: pointer;
-    }
-
-    .content {
-      padding: 28px 28px 32px;
-    }
-
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    .hero-main {
-      width: 100%;
-    }
-
-    .hero-highlight {
-      border: 3px solid var(--line);
-      border-radius: 28px;
-      background: var(--green-bg);
-      color: var(--green-text);
-      box-shadow: 8px 8px 0 var(--line);
-      padding: 24px 26px;
-      margin-bottom: 18px;
-    }
-
-    .hero-highlight-kicker {
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      opacity: 0.78;
-      margin-bottom: 10px;
-    }
-
-    .hero-highlight-sub {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .hero-highlight-value {
-      font-size: clamp(62px, 10vw, 108px);
-      line-height: 0.9;
-      font-weight: 900;
-      letter-spacing: -0.06em;
-    }
-
-.hero-text h1 {
-  margin: 0 0 8px;
-  font-size: clamp(24px, 3.2vw, 36px);
-  line-height: 1.02;
-  letter-spacing: -0.05em;
-  white-space: nowrap;
-}
-
-    .hero-text p {
-      margin: 0;
-      font-size: 16px;
-      color: var(--muted);
-      max-width: 760px;
-      line-height: 1.5;
-    }
-
-    .hero-badge {
-      border: 3px solid var(--line);
-      background: #fff;
-      border-radius: 999px;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-weight: 900;
-      box-shadow: 6px 6px 0 var(--line);
-      white-space: nowrap;
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(220px, 1fr));
-      gap: 22px;
-      margin-bottom: 24px;
-    }
-
-    .metric-card {
-      background: var(--card);
-      border: 3px solid var(--line);
-      border-radius: 28px;
-      box-shadow: 8px 8px 0 var(--line);
-      padding: 22px 20px 18px;
-      min-height: 420px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .metric-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .metric-title {
-      font-size: 15px;
-      line-height: 1.2;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
-      max-width: 170px;
-    }
-
-    .mini-tag {
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      padding: 6px 10px;
-      font-size: 11px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .metric-number {
-      font-size: 84px;
-      line-height: 0.95;
-      font-weight: 900;
-      letter-spacing: -0.06em;
-      margin: 8px 0 12px;
-    }
-
-    .metric-number.orange { color: var(--orange); }
-    .metric-number.red { color: var(--red); }
-
-    .metric-status {
-      font-size: 18px;
-      line-height: 1.3;
-      font-weight: 900;
-      margin-bottom: 16px;
-    }
-
-    .metric-desc {
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--muted);
-      margin-bottom: 18px;
-    }
-
-    .divider {
-      height: 3px;
-      background: var(--line);
-      border-radius: 999px;
-      margin: 0 0 18px;
-      opacity: 0.14;
-    }
-
-    .bar-stack {
-      display: grid;
-      gap: 12px;
-      margin-top: auto;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 36px 1fr 52px;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .grade {
-      width: 32px;
-      height: 32px;
-      border: 2px solid var(--line);
-      border-radius: 10px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .track {
-      height: 14px;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      background: #ededed;
-      overflow: hidden;
-    }
-
-    .fill {
-      height: 100%;
-      border-radius: 999px;
-    }
-
-    .fill.orange { background: var(--orange); }
-    .fill.red { background: var(--red); }
-    .fill.green { background: #4b8b53; }
-
-    .pct {
-      font-size: 13px;
-      font-weight: 900;
-      text-align: right;
-    }
-
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 22px;
-    }
-
-    .summary-card,
-    .projection-card {
-      background: var(--card);
-      border: 3px solid var(--line);
-      border-radius: 26px;
-      box-shadow: 8px 8px 0 var(--line);
-      padding: 20px;
-    }
-
-    .summary-card h3,
-    .projection-card h3 {
-      margin: 0 0 10px;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-
-    .summary-card p {
-      margin: 0;
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .projection-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .projection-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-      border: 2px solid var(--line);
-      border-radius: 16px;
-      background: #fff;
-      padding: 12px 14px;
-    }
-
-    .projection-row strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 3px;
-    }
-
-    .projection-row span {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .projection-value {
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-
-    @media (max-width: 1180px) {
-      .main {
-        grid-template-columns: 1fr;
+    @media (max-width:640px){
+      .container{
+        padding:20px;
       }
 
-      .sidebar {
-        border-right: none;
-        border-bottom: 3px solid var(--line);
+      .card{
+        padding:30px 24px;
       }
 
-      .metric-grid,
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .shell {
-        width: calc(100vw - 16px);
-        margin: 8px auto;
+      .title{
+        font-size:26px;
       }
 
-      .topbar,
-      .hero {
-        flex-direction: column;
-        align-items: flex-start;
+      .desc{
+        font-size:16px;
       }
 
-      .score-row {
-        grid-template-columns: 1fr;
+      .input{
+        height:54px;
+        font-size:16px;
       }
 
-      .content,
-      .sidebar {
-        padding: 18px;
+      .footer{
+        flex-direction:column;
+        align-items:stretch;
       }
 
-      .metric-number {
-        font-size: 68px;
-      }
-
-      .hero-highlight {
-        padding: 20px;
+      .btn,
+      .backBtn{
+        width:100%;
+        font-size:16px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <div class="top-left">
-        <div class="brand">English Diagnostic Dashboard</div>
+  <div class="container">
+    <div class="card">
+      <div class="step">Step 1 of 2</div>
+
+      <h1 class="title">What’s your name?</h1>
+
+      <p class="desc">
+        Enter your name before starting the English diagnostic. Your result page will show your name and today’s date.
+      </p>
+
+      <div class="inputWrap">
+        <input
+          class="input"
+          type="text"
+          placeholder="Enter your full name"
+        />
       </div>
 
-      <div class="top-right">
-        <div class="pill">Student: Li Wei</div>
-        <div class="pill">Session: Mar 09</div>
+      <div class="footer">
+        <button class="backBtn" type="button">Back</button>
+        <button class="btn" type="button">Next</button>
       </div>
-    </header>
-
-    <div class="main">
-      <aside class="sidebar">
-        <div class="stack">
-          <div class="panel-card">
-            <div class="section-kicker">Diagnostic Projection</div>
-            <div class="score-grid">
-              <div class="score-row">
-                <div class="score-box">50–55</div>
-                <div class="score-meta">
-                  <h4>Estimated Score Range</h4>
-                  <p>Current projected performance band based on the diagnostic response pattern.</p>
-                </div>
-              </div>
-
-              <div class="score-row">
-                <div class="score-box">65+</div>
-                <div class="score-meta">
-                  <h4>Target Requirement</h4>
-                  <p>Recommended score threshold for the student's current study objective.</p>
-                </div>
-              </div>
-
-              <div class="score-row">
-                <div class="score-box red">15–20</div>
-                <div class="score-meta">
-                  <h4>Improvement Gap</h4>
-                  <p>Estimated score increase required before the student is target-ready.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-             <div class="panel-card">
-            <div class="section-kicker">Recommended Path</div>
-            <div class="path-list">
-              <div class="path-step">
-                <strong>Phase 1 — Listening Foundation</strong>
-                <span>4 weeks · recognition accuracy, chunk tracking, familiar pattern recovery</span>
-              </div>
-              <div class="path-step">
-                <strong>Phase 2 — Structure & Response Control</strong>
-                <span>4 weeks · sentence response, pattern stability, score conversion ability</span>
-              </div>
-              <div class="path-step">
-                <strong>Phase 3 — Mock & Refinement</strong>
-                <span>2 weeks · targeted correction, timing control, final score lift</span>
-              </div>
-            </div>
-          </div>
-          <div class="cta-wrap">
-            <div class="cta-note">Recommended next step</div>
-            <button class="cta">Enroll in Structured Upgrade Program</button>
-          </div>
-        </div>
-      </aside>
-
-      <section class="content">
-        <div class="hero">
-          <div class="hero-main">
-            <div class="hero-highlight">
-              <div class="hero-highlight-kicker">Upgrade Probability</div>
-              <div class="hero-highlight-sub">After structured training program</div>
-              <div class="hero-highlight-value">High (78%)</div>
-            </div>
-
-            <div class="hero-text">
-              <h1>Performance Analysis & Upgrade Projection</h1>
-              <p>
-                This dashboard is designed to support enrolment conversations by turning raw test
-                results into a clear performance range, gap estimate, and recommended training path.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="metric-grid">
-          <div class="metric-card">
-            <div class="metric-top">
-              <div class="metric-title">Foundation Stability</div>
-              <div class="mini-tag">Score Index</div>
-            </div>
-
-            <div class="metric-number orange">50</div>
-            <div class="metric-status">Below Target Stability Range</div>
-            <div class="metric-desc">
-              Measures the consistency of the student’s base vocabulary and grammar response pattern.
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="bar-stack">
-              <div class="bar-row">
-                <div class="grade">A</div>
-                <div class="track"><div class="fill green" style="width:50%"></div></div>
-                <div class="pct">50%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">B</div>
-                <div class="track"><div class="fill orange" style="width:13%"></div></div>
-                <div class="pct">13%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">C</div>
-                <div class="track"><div class="fill orange" style="width:33%"></div></div>
-                <div class="pct">33%</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-top">
-              <div class="metric-title">Transition Readiness</div>
-              <div class="mini-tag">Score Index</div>
-            </div>
-
-            <div class="metric-number red">13</div>
-            <div class="metric-status">Level Progression Currently Blocked</div>
-            <div class="metric-desc">
-              Indicates whether the student can convert basic language ability into higher-score responses.
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="bar-stack">
-              <div class="bar-row">
-                <div class="grade">A</div>
-                <div class="track"><div class="fill green" style="width:50%"></div></div>
-                <div class="pct">50%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">B</div>
-                <div class="track"><div class="fill red" style="width:13%"></div></div>
-                <div class="pct">13%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">C</div>
-                <div class="track"><div class="fill orange" style="width:33%"></div></div>
-                <div class="pct">33%</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-top">
-              <div class="metric-title">Listening Recognition</div>
-              <div class="mini-tag">Score Index</div>
-            </div>
-
-            <div class="metric-number red">18</div>
-            <div class="metric-status">Critical Gap Detected</div>
-            <div class="metric-desc">
-              Evaluates real-time listening capture and the ability to identify meaning under timed conditions.
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="bar-stack">
-              <div class="bar-row">
-                <div class="grade">A</div>
-                <div class="track"><div class="fill red" style="width:22%"></div></div>
-                <div class="pct">22%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">B</div>
-                <div class="track"><div class="fill red" style="width:15%"></div></div>
-                <div class="pct">15%</div>
-              </div>
-              <div class="bar-row">
-                <div class="grade">C</div>
-                <div class="track"><div class="fill orange" style="width:0%"></div></div>
-                <div class="pct">0%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bottom-grid">
-          <div class="summary-card">
-            <h3>Diagnostic Summary</h3>
-            <p>
-              The student is currently operating in the 50–55 range, with the biggest gap appearing
-              in listening recognition and score transition ability. This means the student is not
-              yet ready for a 65+ target without guided intervention. A structured program should
-              focus first on listening foundation, then on response control, before moving into mock-based refinement.
-            </p>
-          </div>
-
-       
-        </div>
-      </section>
     </div>
   </div>
 </body>

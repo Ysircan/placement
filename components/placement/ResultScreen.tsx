@@ -9,6 +9,10 @@ export default function ResultScreen({
   difficultyStats,
   readingStats,
   listeningStats,
+  studentName,
+  targetScore,
+  testDate,
+  selectedExam,
   onRestart,
 }: ResultScreenProps) {
   const toPercent = (correct: number, totalCount: number) => {
@@ -55,16 +59,25 @@ export default function ResultScreen({
     (listeningA + listeningB + listeningC) / 3
   );
 
+  const examLabelMap: Record<string, string> = {
+    quick10: "快速10分钟",
+    standard1h: "标准1小时",
+    overview: "PTE概览",
+    mock: "PTE测试",
+  };
+
+  const examLabel = examLabelMap[selectedExam] ?? "未选择考试";
+
   return (
     <div className={styles.shell}>
       <header className={styles.topbar}>
         <div className={styles.topLeft}>
-          <div className={styles.brand}>English Diagnostic Dashboard</div>
+          <div className={styles.brand}>测评结果总览</div>
         </div>
 
         <div className={styles.topRight}>
-          <div className={styles.pill}>Student: Li Wei</div>
-          <div className={styles.pill}>Session: Mar 09</div>
+          <div className={styles.pill}>学生：{studentName || "未填写"}</div>
+          <div className={styles.pill}>日期：{testDate}</div>
         </div>
       </header>
 
@@ -72,7 +85,7 @@ export default function ResultScreen({
         <aside className={styles.sidebar}>
           <div className={styles.stack}>
             <div className={styles.panelCard}>
-              <div className={styles.sectionKicker}>Diagnostic Projection</div>
+              <div className={styles.sectionKicker}>测评结果投射</div>
 
               <div className={styles.scoreGrid}>
                 <div className={styles.scoreRow}>
@@ -80,77 +93,65 @@ export default function ResultScreen({
                     {score} / {total}
                   </div>
                   <div className={styles.scoreMeta}>
-                    <h4>Estimated Score Range</h4>
-                    <p>
-                      Current projected performance band based on the
-                      diagnostic response pattern.
-                    </p>
+                    <h4>当前预估表现</h4>
+                    <p>基于本次测评答题表现得到的当前能力区间参考。</p>
                   </div>
                 </div>
 
                 <div className={styles.scoreRow}>
-                  <div className={styles.scoreBox}>65+</div>
+                  <div className={styles.scoreBox}>{targetScore || "未填写"}</div>
                   <div className={styles.scoreMeta}>
-                    <h4>Target Requirement</h4>
-                    <p>
-                      Recommended score threshold for the student&apos;s current
-                      study objective.
-                    </p>
+                    <h4>目标分数</h4>
+                    <p>学生当前希望达到的目标分，用于判断提升空间。</p>
                   </div>
                 </div>
 
                 <div className={styles.scoreRow}>
                   <div className={`${styles.scoreBox} ${styles.redText}`}>
-                    15–20
+                    {examLabel}
                   </div>
                   <div className={styles.scoreMeta}>
-                    <h4>Improvement Gap</h4>
-                    <p>
-                      Estimated score increase required before the student is
-                      target-ready.
-                    </p>
+                    <h4>考试入口</h4>
+                    <p>当前学生选择进入的测试路径或考试模式。</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className={styles.panelCard}>
-              <div className={styles.sectionKicker}>Recommended Path</div>
+              <div className={styles.sectionKicker}>推荐学习路径</div>
 
               <div className={styles.pathList}>
                 <div className={styles.pathStep}>
-                  <strong>Phase 1 — Listening Foundation</strong>
+                  <strong>第一阶段：听力基础</strong>
                   <span>
-                    4 weeks · recognition accuracy, chunk tracking, familiar
-                    pattern recovery
+                    4周 · 提升识别准确率、语块捕捉能力与熟悉模式恢复能力
                   </span>
                 </div>
 
                 <div className={styles.pathStep}>
-                  <strong>Phase 2 — Structure &amp; Response Control</strong>
+                  <strong>第二阶段：结构与作答控制</strong>
                   <span>
-                    4 weeks · sentence response, pattern stability, score
-                    conversion ability
+                    4周 · 强化句子响应、结构稳定性与分数转化能力
                   </span>
                 </div>
 
                 <div className={styles.pathStep}>
-                  <strong>Phase 3 — Mock &amp; Refinement</strong>
+                  <strong>第三阶段：模考与精修</strong>
                   <span>
-                    2 weeks · targeted correction, timing control, final score
-                    lift
+                    2周 · 定向纠错、时间控制与最后冲分
                   </span>
                 </div>
               </div>
             </div>
 
             <div className={styles.ctaWrap}>
-              <div className={styles.ctaNote}>Recommended next step</div>
+              <div className={styles.ctaNote}>推荐下一步</div>
               <button className={styles.cta} type="button">
-                Enroll in Structured Upgrade Program
+                进入系统提升课程
               </button>
               <button className={styles.cta} type="button" onClick={onRestart}>
-                Retake Exam
+                重新测试
               </button>
             </div>
           </div>
@@ -160,21 +161,17 @@ export default function ResultScreen({
           <div className={styles.hero}>
             <div className={styles.heroMain}>
               <div className={styles.heroHighlight}>
-                <div className={styles.heroHighlightKicker}>
-                  Upgrade Probability
-                </div>
+                <div className={styles.heroHighlightKicker}>提升概率</div>
                 <div className={styles.heroHighlightSub}>
-                  After structured training program
+                  完成系统训练后的预估表现
                 </div>
-                <div className={styles.heroHighlightValue}>High (78%)</div>
+                <div className={styles.heroHighlightValue}>较高（78%）</div>
               </div>
 
               <div className={styles.heroText}>
-                <h1>Performance Analysis &amp; Upgrade Projection</h1>
+                <h1>能力分析与提升预测</h1>
                 <p>
-                  This dashboard is designed to support enrolment conversations
-                  by turning raw test results into a clear performance range,
-                  gap estimate, and recommended training path.
+                  这个结果页用于把原始测试结果转化为更清晰的能力区间、差距判断和后续建议，方便沟通分班与课程推荐。
                 </p>
               </div>
             </div>
@@ -183,19 +180,16 @@ export default function ResultScreen({
           <div className={styles.metricGrid}>
             <div className={styles.metricCard}>
               <div className={styles.metricTop}>
-                <div className={styles.metricTitle}>Foundation Stability</div>
-                <div className={styles.miniTag}>Score Index</div>
+                <div className={styles.metricTitle}>基础稳定度</div>
+                <div className={styles.miniTag}>评分指数</div>
               </div>
 
               <div className={`${styles.metricNumber} ${styles.orangeText}`}>
                 {foundationScore}
               </div>
-              <div className={styles.metricStatus}>
-                Below Target Stability Range
-              </div>
+              <div className={styles.metricStatus}>低于目标稳定区间</div>
               <div className={styles.metricDesc}>
-                Measures the consistency of the student&apos;s base vocabulary
-                and grammar response pattern.
+                用于衡量学生在基础词汇与语法响应上的整体稳定程度。
               </div>
 
               <div className={styles.divider}></div>
@@ -238,19 +232,16 @@ export default function ResultScreen({
 
             <div className={styles.metricCard}>
               <div className={styles.metricTop}>
-                <div className={styles.metricTitle}>Transition Readiness</div>
-                <div className={styles.miniTag}>Score Index</div>
+                <div className={styles.metricTitle}>过渡能力</div>
+                <div className={styles.miniTag}>评分指数</div>
               </div>
 
               <div className={`${styles.metricNumber} ${styles.redText}`}>
                 {transitionScore}
               </div>
-              <div className={styles.metricStatus}>
-                Level Progression Currently Blocked
-              </div>
+              <div className={styles.metricStatus}>当前升级能力受阻</div>
               <div className={styles.metricDesc}>
-                Indicates whether the student can convert basic language ability
-                into higher-score responses.
+                用于判断学生是否能把基础语言能力转化为更高分段的作答表现。
               </div>
 
               <div className={styles.divider}></div>
@@ -293,17 +284,16 @@ export default function ResultScreen({
 
             <div className={styles.metricCard}>
               <div className={styles.metricTop}>
-                <div className={styles.metricTitle}>Listening Recognition</div>
-                <div className={styles.miniTag}>Score Index</div>
+                <div className={styles.metricTitle}>听力识别</div>
+                <div className={styles.miniTag}>评分指数</div>
               </div>
 
               <div className={`${styles.metricNumber} ${styles.redText}`}>
                 {listeningScore}
               </div>
-              <div className={styles.metricStatus}>Critical Gap Detected</div>
+              <div className={styles.metricStatus}>检测到明显短板</div>
               <div className={styles.metricDesc}>
-                Evaluates real-time listening capture and the ability to
-                identify meaning under timed conditions.
+                用于评估学生在限时条件下的实时听辨与信息捕捉能力。
               </div>
 
               <div className={styles.divider}></div>
@@ -347,14 +337,9 @@ export default function ResultScreen({
 
           <div className={styles.bottomGrid}>
             <div className={styles.summaryCard}>
-              <h3>Diagnostic Summary</h3>
+              <h3>测评总结</h3>
               <p>
-                The student is currently operating in the 50–55 range, with the
-                biggest gap appearing in listening recognition and score
-                transition ability. This means the student is not yet ready for
-                a 65+ target without guided intervention. A structured program
-                should focus first on listening foundation, then on response
-                control, before moving into mock-based refinement.
+                当前学生仍处于基础能力搭建阶段，主要短板集中在听力识别与高分段转化能力。若目标是达到更高分数，建议先补强听力基础，再进入结构化作答训练，最后再通过模考与精修完成冲分。
               </p>
             </div>
           </div>
