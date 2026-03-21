@@ -34,7 +34,7 @@ export default function QuestionScreen({
         <div className={styles.header}>
           <div className={styles.title}>English Level Assessment</div>
           <div className={styles.subtitle}>
-            Question {questionNumber} of {totalQuestions}
+            第 {questionNumber} 题，共 {totalQuestions} 题
           </div>
         </div>
 

@@ -405,7 +405,7 @@ export default function ListeningFillBlanksScreen({
         <div className={styles.shell}>
           <div className={styles.card}>
             <h1 className={styles.title}>Listening Fill in the Blanks</h1>
-            <p className={styles.intro}>Listening question is not ready.</p>
+            <p className={styles.intro}>听力题目暂未就绪。</p>
           </div>
         </div>
       </main>
@@ -427,7 +427,7 @@ export default function ListeningFillBlanksScreen({
           <div className={styles.audioBox}>
             <div className={styles.audioArea}>
               <p className={styles.intro}>
-                This audio can only be played 2 times. Remaining: {remainingPlays}
+                本题音频最多可播放 2 次。剩余：{remainingPlays} 次
               </p>
 
               {item.audioUrl ? (
@@ -467,9 +467,9 @@ export default function ListeningFillBlanksScreen({
                         cursor: playButtonDisabled ? "not-allowed" : "pointer",
                         boxShadow: "4px 4px 0 #111111",
                       }}
-                    >
-                      {isPlaying
-                        ? "Pause"
+                  >
+                    {isPlaying
+                      ? "Pause"
                         : playCount >= MAX_PLAYS
                         ? "No Plays Left"
                         : "Play Audio"}
@@ -521,15 +521,15 @@ export default function ListeningFillBlanksScreen({
                     }}
                   >
                     {isPlaying
-                      ? "Timeline locked during playback."
+                      ? "播放过程中进度条已锁定。"
                       : playCount >= MAX_PLAYS
-                      ? "Playback limit reached."
-                      : "Press play to start. The timeline will turn grey during playback."}
+                      ? "已达到播放上限。"
+                      : "点击播放开始作答。播放过程中进度条会显示为灰色。"}
                   </div>
                 </>
               ) : (
                 <div className={styles.audioPlaceholder}>
-                  Audio not uploaded yet.
+                  音频暂未上传。
                 </div>
               )}
             </div>

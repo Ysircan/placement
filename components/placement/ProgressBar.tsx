@@ -14,7 +14,7 @@ export function ProgressBar({
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium text-gray-900">
-        {sectionName} - Question {currentQuestion} / {totalQuestions}
+        {sectionName} - 第 {currentQuestion} 题 / 共 {totalQuestions} 题
       </p>
       <div className="h-2 w-full rounded-full bg-gray-200">
         <div className="h-2 rounded-full bg-blue-600" style={{ width: `${widthPercent}%` }} />

@@ -452,7 +452,7 @@ Ultimately, sustainable growth depends on a careful (5) ___ of organisational ob
       id: "wfd-a-1",
       type: "wfd",
       difficulty: "A",
-      prompt: "Type the sentence exactly as dictated.",
+      prompt: "请准确输入你所听到的句子。",
       transcript: "Field trips are an essential part of geography courses",
       expectedText: "Field trips are an essential part of geography courses",
       audioUrl: "/audio/155.mp3",
@@ -461,7 +461,7 @@ Ultimately, sustainable growth depends on a careful (5) ___ of organisational ob
       id: "wfd-b-1",
       type: "wfd",
       difficulty: "B",
-      prompt: "Type the sentence exactly as dictated.",
+      prompt: "请准确输入你所听到的句子。",
       transcript:
         "The archaeologist’s new discoveries stand out in the previously overlooked foundations",
       expectedText:
@@ -472,7 +472,7 @@ Ultimately, sustainable growth depends on a careful (5) ___ of organisational ob
       id: "wfd-c-1",
       type: "wfd",
       difficulty: "C",
-      prompt: "Type the sentence exactly as dictated.",
+      prompt: "请准确输入你所听到的句子。",
       transcript: "There is a great deal of debate on that topic",
       expectedText: "There is a great deal of debate on that topic",
       audioUrl: "/audio/172.mp3",

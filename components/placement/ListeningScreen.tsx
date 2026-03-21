@@ -374,13 +374,13 @@ export default function ListeningScreen({ item, onNext }: Props) {
         <div className={styles.header}>
           <div className={styles.title}>Write From Dictation</div>
           <div className={styles.subtitle}>
-            {item.prompt || "Type the sentence exactly as dictated."}
+            {item.prompt || "请准确输入你所听到的句子。"}
           </div>
         </div>
 
         <div className={styles.blankBlock}>
           <div className={styles.blankTitle}>
-            Type the sentence exactly as dictated.
+            请准确输入你所听到的句子。
           </div>
 
           <div style={{ marginTop: "16px" }}>
@@ -473,15 +473,15 @@ export default function ListeningScreen({ item, onNext }: Props) {
               }}
             >
               {isPlaying
-                ? "Timeline locked during playback."
+                ? "播放过程中进度条已锁定。"
                 : playCount >= MAX_PLAYS
-                ? "Playback limit reached."
-                : `You can play this audio ${remainingPlays} more time(s).`}
+                ? "已达到播放上限。"
+                : `本题音频还可播放 ${remainingPlays} 次。`}
             </div>
           </div>
 
           <textarea
-            placeholder="Type what you heard"
+            placeholder="请输入你听到的内容"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             style={{

@@ -405,13 +405,12 @@ export default function HighlightIncorrectWordsScreen({
         <h1 className={styles.title}>Highlight Incorrect Words</h1>
         <p className={styles.subtitle}>
           {item.instruction ??
-            "Listen to the recording and click on the words in the transcript that are different from what you hear."}
+            "请听录音，并点击文稿中与录音内容不一致的单词。"}
         </p>
 
         <div className={styles.audioCard}>
           <div className={styles.audioNote}>
-            This audio can only be played {maxPlays} times. Remaining:{" "}
-            {remainingPlays}
+            本题音频最多可播放 {maxPlays} 次。剩余：{remainingPlays} 次
           </div>
 
           <audio
@@ -496,10 +495,10 @@ export default function HighlightIncorrectWordsScreen({
 
           <div className={styles.limitText} style={{ marginTop: 10 }}>
             {isPlaying
-              ? "Timeline locked during playback."
+              ? "播放过程中进度条已锁定。"
               : playCount >= maxPlays
-              ? "Playback limit reached."
-              : "Press play to start. The timeline will turn grey during playback."}
+              ? "已达到播放上限。"
+              : "点击播放开始作答。播放过程中进度条会显示为灰色。"}
           </div>
         </div>
 

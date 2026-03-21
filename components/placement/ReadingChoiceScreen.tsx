@@ -66,13 +66,13 @@ export default function ReadingChoiceScreen({
 
         <section className={styles.questionWrap}>
           <p className={styles.counter}>
-            Question {questionNumber} of {totalQuestions}
+            第 {questionNumber} 题，共 {totalQuestions} 题
           </p>
 
           <h2 className={styles.question}>{question}</h2>
 
           {mode === "multiple" && (
-            <p className={styles.helper}>Select all correct answers.</p>
+            <p className={styles.helper}>请选择所有正确答案。</p>
           )}
 
           <div className={styles.options}>
