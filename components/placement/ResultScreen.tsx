@@ -8,6 +8,15 @@ import {
   type DifficultyDistribution,
 } from "@/lib/placement/resultDiagnosis";
 
+function getBandRangeFromScore(score: number) {
+  if (score < 15) return { min: 0, max: 15 };
+  if (score < 30) return { min: 15, max: 30 };
+  if (score < 42) return { min: 30, max: 42 };
+  if (score < 50) return { min: 42, max: 50 };
+  if (score < 58) return { min: 50, max: 58 };
+  return { min: 58, max: null as number | null };
+}
+
 export default function ResultScreen({
   score,
   difficultyStats,
@@ -36,58 +45,25 @@ export default function ResultScreen({
   );
   const listeningDiagnosis = getSectionDiagnosis("listening", listeningStats);
 
-  const numericTarget = Number(targetScore || 0);
+  const numericTarget = Number(targetScore);
   const hasTarget = Number.isFinite(numericTarget) && numericTarget > 0;
   const rawGap = hasTarget ? numericTarget - score : null;
-console.log("targetScore:", targetScore);
-console.log("numericTarget:", numericTarget);
-console.log("hasTarget:", hasTarget);
-console.log("scoreBandLabel:", scoreBandLabel);
 
-function getBandRange(label: string) {
-  const text = label.trim();
-
-  // 15分以下
-  const belowMatch = text.match(/^(\d+)\s*分?以下$/);
-  if (belowMatch) {
-    const max = Number(belowMatch[1]);
-    return Number.isFinite(max) ? { min: 0, max } : null;
-  }
-
-  // 58+ 或 58分以上
-  const aboveMatch = text.match(/^(\d+)\s*(\+|分?以上)$/);
-  if (aboveMatch) {
-    const min = Number(aboveMatch[1]);
-    return Number.isFinite(min) ? { min, max: null as number | null } : null;
-  }
-
-  // 30 - 42 / 30-42 / 30 ～ 42
-  const rangeMatch = text.match(/^(\d+)\s*[-~～]\s*(\d+)$/);
-  if (rangeMatch) {
-    const min = Number(rangeMatch[1]);
-    const max = Number(rangeMatch[2]);
-
-    if (Number.isFinite(min) && Number.isFinite(max)) {
-      return { min, max };
-    }
-  }
-
-  return null;
-}
-  const bandRange = getBandRange(scoreBandLabel);
+  // 直接根据 score 算区间，不再依赖 scoreBandLabel 文案格式
+  const bandRange = getBandRangeFromScore(score);
 
   const gapDisplay =
-  !hasTarget || !bandRange
-    ? "未计算"
-    : bandRange.max === null
-    ? numericTarget <= bandRange.min
+    !hasTarget
+      ? "未计算"
+      : bandRange.max === null
+      ? numericTarget <= bandRange.min
+        ? "0分"
+        : `差${numericTarget - bandRange.min}分以上`
+      : numericTarget <= bandRange.min
       ? "0分"
-      : `差${numericTarget - bandRange.min}分以上`
-    : numericTarget <= bandRange.min
-    ? "0分"
-    : numericTarget <= bandRange.max
-    ? `差0-${numericTarget - bandRange.min}分`
-    : `差${numericTarget - bandRange.max}-${numericTarget - bandRange.min}分`;
+      : numericTarget <= bandRange.max
+      ? `差0-${numericTarget - bandRange.min}分`
+      : `差${numericTarget - bandRange.max}-${numericTarget - bandRange.min}分`;
 
   const shortTermSuggestion =
     !hasTarget || rawGap === null
