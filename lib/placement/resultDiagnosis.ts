@@ -46,10 +46,20 @@ function toPercent(correct: number, total: number) {
   return Math.round((correct / total) * 100);
 }
 
+function toPercentOrNull(correct: number, total: number) {
+  if (!total) return null;
+  return Math.round((correct / total) * 100);
+}
+
 function getBand(percent: number): DiagnosisBand {
   if (percent < LOW_THRESHOLD) return "low";
   if (percent >= HIGH_THRESHOLD) return "high";
   return "mid";
+}
+
+function getBandFromNullable(percent: number | null): DiagnosisBand {
+  if (percent === null) return "mid";
+  return getBand(percent);
 }
 
 function getOverallPercent(distribution: DifficultyDistribution) {
@@ -62,48 +72,54 @@ function getOverallPercent(distribution: DifficultyDistribution) {
 }
 
 function detectPattern(
-  aPercent: number,
-  bPercent: number,
-  cPercent: number
+  aPercent: number | null,
+  bPercent: number | null,
+  cPercent: number | null
 ): DiagnosisPattern {
-  const aLow = aPercent < LOW_THRESHOLD;
-  const bLow = bPercent < LOW_THRESHOLD;
-  const cLow = cPercent < LOW_THRESHOLD;
+  const activePercents = [aPercent, bPercent, cPercent].filter(
+    (value): value is number => value !== null
+  );
 
-  const aHigh = aPercent >= HIGH_THRESHOLD;
-  const bHigh = bPercent >= HIGH_THRESHOLD;
-  const cHigh = cPercent >= HIGH_THRESHOLD;
+  if (activePercents.length === 0) {
+    return "developing";
+  }
 
-  const aMid = !aLow && !aHigh;
-  const bMid = !bLow && !bHigh;
-  const cMid = !cLow && !cHigh;
+  const allLow = activePercents.every((value) => value < LOW_THRESHOLD);
+  const allMid = activePercents.every(
+    (value) => value >= LOW_THRESHOLD && value < HIGH_THRESHOLD
+  );
+  const allHigh = activePercents.every((value) => value >= HIGH_THRESHOLD);
 
-  if (aLow && (bHigh || cHigh)) {
+  if (allLow) return "all-low";
+  if (allMid) return "all-mid";
+  if (allHigh) return "strong";
+
+  const hasA = aPercent !== null;
+  const hasB = bPercent !== null;
+  const hasC = cPercent !== null;
+
+  const aLow = hasA && aPercent < LOW_THRESHOLD;
+  const bLow = hasB && bPercent < LOW_THRESHOLD;
+  const cLow = hasC && cPercent < LOW_THRESHOLD;
+
+  const aHigh = hasA && aPercent >= HIGH_THRESHOLD;
+  const bHigh = hasB && bPercent >= HIGH_THRESHOLD;
+  const cHigh = hasC && cPercent >= HIGH_THRESHOLD;
+
+  if (hasA && aLow && ((hasB && bHigh) || (hasC && cHigh))) {
     return "unstable";
   }
 
-  if (aLow && bLow && cLow) {
-    return "all-low";
-  }
-
-  if (aLow && !bHigh && !cHigh) {
+  if (hasA && aLow && !(hasB && bHigh) && !(hasC && cHigh)) {
     return "foundation-weak";
   }
 
-  if (aHigh && bLow && cLow) {
+  if (hasA && hasB && hasC && aHigh && bLow && cLow) {
     return "transition-block";
   }
 
-  if (aHigh && bHigh && cLow) {
+  if (hasA && hasB && hasC && aHigh && bHigh && cLow) {
     return "advanced-weak";
-  }
-
-  if (aMid && bMid && cMid) {
-    return "all-mid";
-  }
-
-  if (aHigh && bHigh && cHigh) {
-    return "strong";
   }
 
   return "developing";
@@ -341,16 +357,25 @@ export function getSectionDiagnosis(
   section: DiagnosisSection,
   distribution: DifficultyDistribution
 ): SectionDiagnosis {
-  const aPercent = toPercent(distribution.A.correct, distribution.A.total);
-  const bPercent = toPercent(distribution.B.correct, distribution.B.total);
-  const cPercent = toPercent(distribution.C.correct, distribution.C.total);
+  const aPercentRaw = toPercentOrNull(
+    distribution.A.correct,
+    distribution.A.total
+  );
+  const bPercentRaw = toPercentOrNull(
+    distribution.B.correct,
+    distribution.B.total
+  );
+  const cPercentRaw = toPercentOrNull(
+    distribution.C.correct,
+    distribution.C.total
+  );
 
-  const aBand = getBand(aPercent);
-  const bBand = getBand(bPercent);
-  const cBand = getBand(cPercent);
+  const aBand = getBandFromNullable(aPercentRaw);
+  const bBand = getBandFromNullable(bPercentRaw);
+  const cBand = getBandFromNullable(cPercentRaw);
 
   const overallPercent = getOverallPercent(distribution);
-  const pattern = detectPattern(aPercent, bPercent, cPercent);
+  const pattern = detectPattern(aPercentRaw, bPercentRaw, cPercentRaw);
 
   const copy =
     section === "foundation"
@@ -363,9 +388,9 @@ export function getSectionDiagnosis(
     section,
     pattern,
     overallPercent,
-    aPercent,
-    bPercent,
-    cPercent,
+    aPercent: aPercentRaw ?? 0,
+    bPercent: bPercentRaw ?? 0,
+    cPercent: cPercentRaw ?? 0,
     aBand,
     bBand,
     cBand,

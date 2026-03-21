@@ -15,21 +15,85 @@ type Props = {
   onNext: (payload: { answer: string; isCorrect: boolean }) => void;
 };
 
+const MAX_PLAYS = 2;
+
 export default function ListeningScreen({ item, onNext }: Props) {
   const [answer, setAnswer] = useState("");
   const [playCount, setPlayCount] = useState(0);
+  const [hydratedItemId, setHydratedItemId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const answerStorageKey = item ? `placement_wfd_answer_${item.id}` : "";
+  const playCountStorageKey = item
+    ? `placement_wfd_play_count_${item.id}`
+    : "";
+
   useEffect(() => {
-    setAnswer("");
-    setPlayCount(0);
+    let isActive = true;
 
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current.controls = true;
     }
-  }, [item?.id]);
+
+    if (!item) {
+      queueMicrotask(() => {
+        if (!isActive) return;
+        setAnswer("");
+        setPlayCount(0);
+        setHydratedItemId(null);
+      });
+      return () => {
+        isActive = false;
+      };
+    }
+
+    let nextAnswer = "";
+    let nextPlayCount = 0;
+
+    try {
+      nextAnswer = localStorage.getItem(answerStorageKey) ?? "";
+    } catch {}
+
+    try {
+      const savedPlayCount = Number(localStorage.getItem(playCountStorageKey));
+
+      if (Number.isFinite(savedPlayCount) && savedPlayCount >= 0) {
+        nextPlayCount = Math.min(savedPlayCount, MAX_PLAYS);
+      }
+    } catch {}
+
+    queueMicrotask(() => {
+      if (!isActive) return;
+      setAnswer(nextAnswer);
+      setPlayCount(nextPlayCount);
+      setHydratedItemId(item.id);
+
+      if (audioRef.current) {
+        audioRef.current.controls = nextPlayCount < MAX_PLAYS;
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [answerStorageKey, item, item?.id, playCountStorageKey]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(answerStorageKey, answer);
+  }, [answer, answerStorageKey, hydratedItemId, item]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(playCountStorageKey, String(playCount));
+
+    if (audioRef.current) {
+      audioRef.current.controls = playCount < MAX_PLAYS;
+    }
+  }, [hydratedItemId, item, playCount, playCountStorageKey]);
 
   if (!item) return null;
 
@@ -39,7 +103,7 @@ export default function ListeningScreen({ item, onNext }: Props) {
 
   function handleAudioPlay() {
     setPlayCount((prev) => {
-      if (prev >= 2) {
+      if (prev >= MAX_PLAYS) {
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current.currentTime = 0;
@@ -51,7 +115,7 @@ export default function ListeningScreen({ item, onNext }: Props) {
   }
 
   function handleAudioPauseLimit() {
-    if (playCount >= 2 && audioRef.current) {
+    if (playCount >= MAX_PLAYS && audioRef.current) {
       audioRef.current.controls = false;
     }
   }
@@ -66,7 +130,7 @@ function handleNext() {
   if (audioRef.current) {
     audioRef.current.pause();
     audioRef.current.currentTime = 0;
-    audioRef.current.controls = true;
+    audioRef.current.controls = playCount < MAX_PLAYS;
   }
 
   onNext({
@@ -107,7 +171,7 @@ function handleNext() {
                 color: "#64748b",
               }}
             >
-              You can play this audio {Math.max(0, 2 - playCount)} more time(s).
+              You can play this audio {Math.max(0, MAX_PLAYS - playCount)} more time(s).
             </div>
           </div>
 

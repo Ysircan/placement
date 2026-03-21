@@ -27,22 +27,102 @@ export default function HighlightIncorrectWordsScreen({
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [playCount, setPlayCount] = useState(0);
   const [locked, setLocked] = useState(false);
+  const [hydratedItemId, setHydratedItemId] = useState<string | null>(null);
 
   const maxPlays = item?.maxPlays ?? 2;
   const remainingPlays = Math.max(maxPlays - playCount, 0);
+  const selectedIndexesStorageKey = item
+    ? `placement_hiw_selected_indexes_${item.id}`
+    : "";
+  const playCountStorageKey = item
+    ? `placement_hiw_play_count_${item.id}`
+    : "";
 
   useEffect(() => {
-    setSelectedIndexes([]);
-    setPlayCount(0);
-    setLocked(false);
+    let isActive = true;
+
     countedCurrentPlayRef.current = false;
-    playCountRef.current = 0;
 
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }, [item?.id]);
+
+    if (!item) {
+      queueMicrotask(() => {
+        if (!isActive) return;
+        setSelectedIndexes([]);
+        setPlayCount(0);
+        setLocked(false);
+        setHydratedItemId(null);
+        playCountRef.current = 0;
+      });
+      return () => {
+        isActive = false;
+      };
+    }
+
+    let nextSelectedIndexes: number[] = [];
+    let nextPlayCount = 0;
+
+    try {
+      const savedSelectedIndexes = localStorage.getItem(
+        selectedIndexesStorageKey
+      );
+
+      if (savedSelectedIndexes) {
+        const parsedSelectedIndexes = JSON.parse(savedSelectedIndexes);
+
+        if (Array.isArray(parsedSelectedIndexes)) {
+          nextSelectedIndexes = parsedSelectedIndexes
+            .map((value) => Number(value))
+            .filter((value) => Number.isInteger(value) && value >= 0);
+        }
+      }
+    } catch {}
+
+    try {
+      const savedPlayCount = Number(localStorage.getItem(playCountStorageKey));
+
+      if (Number.isFinite(savedPlayCount) && savedPlayCount >= 0) {
+        nextPlayCount = Math.min(savedPlayCount, maxPlays);
+      }
+    } catch {}
+
+    queueMicrotask(() => {
+      if (!isActive) return;
+      setSelectedIndexes(nextSelectedIndexes);
+      setPlayCount(nextPlayCount);
+      setLocked(nextPlayCount >= maxPlays);
+      setHydratedItemId(item.id);
+      playCountRef.current = nextPlayCount;
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [
+    item,
+    item?.id,
+    maxPlays,
+    playCountStorageKey,
+    selectedIndexesStorageKey,
+  ]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(
+      selectedIndexesStorageKey,
+      JSON.stringify(selectedIndexes)
+    );
+  }, [hydratedItemId, item, selectedIndexes, selectedIndexesStorageKey]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(playCountStorageKey, String(playCount));
+  }, [hydratedItemId, item, playCount, playCountStorageKey]);
 
   const words = useMemo(() => {
     return item?.transcript?.trim().split(/\s+/) ?? [];

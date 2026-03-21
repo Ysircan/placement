@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./ReadingChoiceScreen.module.css";
 
 type Option = {
@@ -31,7 +31,11 @@ export default function ReadingChoiceScreen({
   initialSelectedIds = [],
   onNext,
 }: ReadingChoiceScreenProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedIds(initialSelectedIds);
+  }, [questionNumber, question, initialSelectedIds]);
 
   const handleOptionClick = (optionId: string) => {
     if (mode === "single") {
@@ -61,7 +65,6 @@ export default function ReadingChoiceScreen({
         </section>
 
         <section className={styles.questionWrap}>
-          
           <p className={styles.counter}>
             Question {questionNumber} of {totalQuestions}
           </p>

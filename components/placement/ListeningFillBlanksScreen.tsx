@@ -9,7 +9,6 @@ type ListeningFillBlanksScreenProps = {
   onNext: (answers: string[]) => void;
 };
 
-const BLANK_REGEX = /\[blank-(\d+)\]/g;
 const MAX_PLAYS = 2;
 
 export default function ListeningFillBlanksScreen({
@@ -21,17 +20,85 @@ export default function ListeningFillBlanksScreen({
 
   const [answers, setAnswers] = useState<string[]>([]);
   const [playCount, setPlayCount] = useState(0);
+  const [hydratedItemId, setHydratedItemId] = useState<string | null>(null);
+
+  const answersStorageKey = item
+    ? `placement_listening_fill_blanks_answers_${item.id}`
+    : "";
+  const playCountStorageKey = item
+    ? `placement_listening_fill_blanks_play_count_${item.id}`
+    : "";
 
   useEffect(() => {
-    setAnswers(item?.blanks.map(() => "") ?? []);
-    setPlayCount(0);
+    let isActive = true;
+
     hasCountedCurrentPlayRef.current = false;
 
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }, [item?.id]);
+
+    if (!item) {
+      queueMicrotask(() => {
+        if (!isActive) return;
+        setAnswers([]);
+        setPlayCount(0);
+        setHydratedItemId(null);
+      });
+      return () => {
+        isActive = false;
+      };
+    }
+
+    let nextAnswers = item.blanks.map(() => "");
+    let nextPlayCount = 0;
+
+    try {
+      const savedAnswers = localStorage.getItem(answersStorageKey);
+
+      if (savedAnswers) {
+        const parsedAnswers = JSON.parse(savedAnswers);
+
+        if (Array.isArray(parsedAnswers)) {
+          nextAnswers = item.blanks.map((_, index) =>
+            String(parsedAnswers[index] ?? "")
+          );
+        }
+      }
+    } catch {}
+
+    try {
+      const savedPlayCount = Number(localStorage.getItem(playCountStorageKey));
+
+      if (Number.isFinite(savedPlayCount) && savedPlayCount >= 0) {
+        nextPlayCount = Math.min(savedPlayCount, MAX_PLAYS);
+      }
+    } catch {}
+
+    queueMicrotask(() => {
+      if (!isActive) return;
+      setAnswers(nextAnswers);
+      setPlayCount(nextPlayCount);
+      setHydratedItemId(item.id);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [answersStorageKey, item, item?.id, playCountStorageKey]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(answersStorageKey, JSON.stringify(answers));
+  }, [answers, answersStorageKey, hydratedItemId, item]);
+
+  useEffect(() => {
+    if (!item || hydratedItemId !== item.id) return;
+
+    localStorage.setItem(playCountStorageKey, String(playCount));
+  }, [hydratedItemId, item, playCount, playCountStorageKey]);
 
   const transcriptParts = useMemo(() => {
     if (!item) return [];
@@ -40,10 +107,9 @@ export default function ListeningFillBlanksScreen({
     const parts: Array<string | { blankIndex: number }> = [];
     let lastIndex = 0;
     let match: RegExpExecArray | null;
+    const blankRegex = /\[blank-(\d+)\]/g;
 
-    BLANK_REGEX.lastIndex = 0;
-
-    while ((match = BLANK_REGEX.exec(text)) !== null) {
+    while ((match = blankRegex.exec(text)) !== null) {
       const start = match.index;
 
       if (start > lastIndex) {
@@ -52,7 +118,7 @@ export default function ListeningFillBlanksScreen({
 
       const blankNumber = Number(match[1]);
       parts.push({ blankIndex: blankNumber - 1 });
-      lastIndex = BLANK_REGEX.lastIndex;
+      lastIndex = blankRegex.lastIndex;
     }
 
     if (lastIndex < text.length) {
