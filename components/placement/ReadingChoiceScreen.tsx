@@ -28,14 +28,14 @@ export default function ReadingChoiceScreen({
   questionNumber,
   totalQuestions,
   mode,
-  initialSelectedIds = [],
+  initialSelectedIds,
   onNext,
 }: ReadingChoiceScreenProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedIds(initialSelectedIds);
-  }, [questionNumber, question, initialSelectedIds]);
+    setSelectedIds(initialSelectedIds ?? []);
+  }, [questionNumber, question]);
 
   const handleOptionClick = (optionId: string) => {
     if (mode === "single") {
