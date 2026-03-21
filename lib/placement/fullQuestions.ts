@@ -4,472 +4,469 @@ export const EXAM_BLUEPRINT = {
   totalRawMax: 70,
 
   vocabulary: {
-    questionCount: 20,
+    questionCount: 8,
     maxRaw: 20,
-    difficulty: { A: 6, B: 8, C: 6 },
+    difficulty: { A: 3, B: 3, C: 2 },
   },
 
   reading: {
     passageCount: 2,
     blanksPerPassage: 5,
     maxRaw: 20,
-    difficulty: { A: 0, B: 5, C: 5 },
+    difficulty: { A: 2, B: 0, C: 0 },
   },
 
- listening: {
-  maxRaw: 30,
+listening: {
+  maxRaw: 3,
   wfd: {
     itemCount: 3,
-    maxRaw: 30, // ✅ 从 22 改成 30（因为HIW砍了，30全给WFD）
+    maxRaw: 3,
     difficulty: { A: 1, B: 1, C: 1 },
   },
 },
 } as const;
 
 export const SECTION_MAX_SCORES = {
-  vocabulary: EXAM_BLUEPRINT.vocabulary.maxRaw, // 20
-  reading: EXAM_BLUEPRINT.reading.maxRaw,       // 20
-  listening: EXAM_BLUEPRINT.listening.maxRaw,   // 30
-  total: EXAM_BLUEPRINT.totalRawMax,            // 70
+  vocabulary: EXAM_BLUEPRINT.vocabulary.maxRaw,
+  reading: EXAM_BLUEPRINT.reading.maxRaw,
+  listening: EXAM_BLUEPRINT.listening.maxRaw,
+  total: EXAM_BLUEPRINT.totalRawMax,
 } as const;
 
 export const questions: QuestionBank = {
-vocabulary: [
-  {
-    id: "vocab-a-1",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'influence'.",
-    options: [
-      { id: "a", text: "distance" },
-      { id: "b", text: "impact" },
-      { id: "c", text: "location" },
-      { id: "d", text: "decision" }
-    ],
-    correctOptionId: "b"
-  },
-  {
-    id: "vocab-a-2",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'decrease'.",
-    options: [
-      { id: "a", text: "reduce" },
-      { id: "b", text: "expand" },
-      { id: "c", text: "increase" },
-      { id: "d", text: "develop" }
-    ],
-    correctOptionId: "a"
-  },
-  {
-    id: "vocab-a-3",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'structure'.",
-    options: [
-      { id: "a", text: "mistake" },
-      { id: "b", text: "framework" },
-      { id: "c", text: "noise" },
-      { id: "d", text: "temperature" }
-    ],
-    correctOptionId: "b"
-  },
-  {
-    id: "vocab-a-4",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'function'.",
-    options: [
-      { id: "a", text: "surface" },
-      { id: "b", text: "holiday" },
-      { id: "c", text: "purpose" },
-      { id: "d", text: "accident" }
-    ],
-    correctOptionId: "c"
-  },
-  {
-    id: "vocab-a-5",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'process'.",
-    options: [
-      { id: "a", text: "result" },
-      { id: "b", text: "memory" },
-      { id: "c", text: "problem" },
-      { id: "d", text: "procedure" }
-    ],
-    correctOptionId: "d"
-  },
-  {
-    id: "vocab-a-6",
-    type: "mcq",
-    difficulty: "A",
-    prompt: "Choose the closest meaning of 'quality'.",
-    options: [
-      { id: "a", text: "quantity" },
-      { id: "b", text: "standard" },
-      { id: "c", text: "price" },
-      { id: "d", text: "location" }
-    ],
-    correctOptionId: "b"
-  },
-  {
-  id: "vocab-b-1",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "The company plans to ___ new technology into its existing system.",
-  options: [
-    { id: "a", text: "remove" },
-    { id: "b", text: "ignore" },
-    { id: "c", text: "divide" },
-    { id: "d", text: "integrate" }
+  vocabulary: [
+    {
+      id: "vocab-a-1",
+      type: "mcq",
+      difficulty: "A",
+      prompt: "Choose the closest meaning of 'provide'.",
+      options: [
+        { id: "a", text: "stop" },
+        { id: "b", text: "hide" },
+        { id: "c", text: "give" },
+        { id: "d", text: "break" }
+      ],
+      correctOptionId: "c"
+    },
+    {
+      id: "vocab-a-2",
+      type: "mcq",
+      difficulty: "A",
+      prompt: "Choose the closest meaning of 'require'.",
+      options: [
+        { id: "a", text: "choose" },
+        { id: "b", text: "need" },
+        { id: "c", text: "carry" },
+        { id: "d", text: "forget" }
+      ],
+      correctOptionId: "b"
+    },
+    {
+      id: "vocab-a-3",
+      type: "mcq",
+      difficulty: "A",
+      prompt: "Good teachers should ___ students when they face difficulties.",
+      options: [
+        { id: "a", text: "divide" },
+        { id: "b", text: "remove" },
+        { id: "c", text: "cancel" },
+        { id: "d", text: "support" }
+      ],
+      correctOptionId: "d"
+    },
+    {
+      id: "vocab-b-1",
+      type: "mcq",
+      difficulty: "B",
+      prompt: "Choose the closest meaning of 'impact'.",
+      options: [
+        { id: "a", text: "effect" },
+        { id: "b", text: "paper" },
+        { id: "c", text: "journey" },
+        { id: "d", text: "sound" }
+      ],
+      correctOptionId: "a"
+    },
+    {
+      id: "vocab-b-2",
+      type: "mcq",
+      difficulty: "B",
+      prompt: "A clear essay ___ helps readers understand the main ideas.",
+      options: [
+        { id: "a", text: "holiday" },
+        { id: "b", text: "structure" },
+        { id: "c", text: "engine" },
+        { id: "d", text: "window" }
+      ],
+      correctOptionId: "b"
+    },
+    {
+      id: "vocab-b-3",
+      type: "mcq",
+      difficulty: "B",
+      prompt: "Please ___ your assignment before Friday evening.",
+      options: [
+        { id: "a", text: "escape" },
+        { id: "b", text: "damage" },
+        { id: "c", text: "submit" },
+        { id: "d", text: "borrow" }
+      ],
+      correctOptionId: "c"
+    },
+    {
+      id: "vocab-c-1",
+      type: "mcq",
+      difficulty: "C",
+      prompt: "The results may ___ that more practice is needed.",
+      options: [
+        { id: "a", text: "indicate" },
+        { id: "b", text: "celebrate" },
+        { id: "c", text: "protect" },
+        { id: "d", text: "compare" }
+      ],
+      correctOptionId: "a"
+    },
+    {
+      id: "vocab-c-2",
+      type: "mcq",
+      difficulty: "C",
+      prompt: "His second statement seemed to ___ what he said earlier.",
+      options: [
+        { id: "a", text: "repeat" },
+        { id: "b", text: "improve" },
+        { id: "c", text: "collect" },
+        { id: "d", text: "contradict" }
+      ],
+      correctOptionId: "d"
+    }
   ],
-  correctOptionId: "d"
-},
-{
-  id: "vocab-b-2",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "The government decided to ___ additional funds to public education.",
-  options: [
-    { id: "a", text: "allocate" },
-    { id: "b", text: "hide" },
-    { id: "c", text: "damage" },
-    { id: "d", text: "forget" }
-  ],
-  correctOptionId: "a"
-},
-{
-  id: "vocab-b-3",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "Researchers were able to ___ meaningful conclusions from the data.",
-  options: [
-    { id: "a", text: "derive" },
-    { id: "b", text: "destroy" },
-    { id: "c", text: "delay" },
-    { id: "d", text: "deny" }
-  ],
-  correctOptionId: "a"
-},
-{
-  id: "vocab-b-4",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "Laws are created to ___ behavior in society.",
-  options: [
-    { id: "a", text: "celebrate" },
-    { id: "b", text: "encourage" },
-    { id: "c", text: "regulate" },
-    { id: "d", text: "describe" }
-  ],
-  correctOptionId: "c"
-},
-{
-  id: "vocab-b-5",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "Limited resources may ___ the growth of small businesses.",
-  options: [
-    { id: "a", text: "support" },
-    { id: "b", text: "expand" },
-    { id: "c", text: "reward" },
-    { id: "d", text: "constrain" }
-  ],
-  correctOptionId: "d"
-},
-{
-  id: "vocab-b-6",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "The design was slightly ___ to improve efficiency.",
-  options: [
-    { id: "a", text: "ignored" },
-    { id: "b", text: "modified" },
-    { id: "c", text: "closed" },
-    { id: "d", text: "forgotten" }
-  ],
-  correctOptionId: "b"
-},
-{
-  id: "vocab-b-7",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "The study aims to ___ the long-term effects of climate change.",
-  options: [
-    { id: "a", text: "avoid" },
-    { id: "b", text: "complain" },
-    { id: "c", text: "argue" },
-    { id: "d", text: "measure" }
-  ],
-  correctOptionId: "d"
-},
-{
-  id: "vocab-b-8",
-  type: "mcq",
-  difficulty: "B",
-  prompt: "Managers must ___ different perspectives when making decisions.",
-  options: [
-    { id: "a", text: "integrate" },
-    { id: "b", text: "ignore" },
-    { id: "c", text: "damage" },
-    { id: "d", text: "avoid" }
-  ],
-  correctOptionId: "a"
-},
-{
-  id: "vocab-c-1",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "Which term refers to a testable scientific explanation?",
-  options: [
-    { id: "a", text: "theory" },
-    { id: "b", text: "hypothesis" },
-    { id: "c", text: "belief" },
-    { id: "d", text: "opinion" }
-  ],
-  correctOptionId: "b"
-},
-{
-  id: "vocab-c-2",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "Which word describes a position based on evidence rather than personal feelings?",
-  options: [
-    { id: "a", text: "emotional" },
-    { id: "b", text: "subjective" },
-    { id: "c", text: "objective" },
-    { id: "d", text: "personal" }
-  ],
-  correctOptionId: "c"
-},
-{
-  id: "vocab-c-3",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "Which term refers to something accepted without proof?",
-  options: [
-    { id: "a", text: "conclusion" },
-    { id: "b", text: "assumption" },
-    { id: "c", text: "evidence" },
-    { id: "d", text: "observation" }
-  ],
-  correctOptionId: "b"
-},
-{
-  id: "vocab-c-4",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "The results were statistically ___.",
-  options: [
-    { id: "a", text: "substantial" },
-    { id: "b", text: "visible" },
-    { id: "c", text: "significant" },
-    { id: "d", text: "clear" }
-  ],
-  correctOptionId: "c"
-},
-{
-  id: "vocab-c-5",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "The report provides a ___ analysis of the issue, covering all major factors.",
-  options: [
-    { id: "a", text: "complete" },
-    { id: "b", text: "comprehensive" },
-    { id: "c", text: "simple" },
-    { id: "d", text: "brief" }
-  ],
-  correctOptionId: "b"
-},
-{
-  id: "vocab-c-6",
-  type: "mcq",
-  difficulty: "C",
-  prompt: "The policy had a ___ impact on economic growth.",
-  options: [
-    { id: "a", text: "significant" },
-    { id: "b", text: "substantial" },
-    { id: "c", text: "visible" },
-    { id: "d", text: "immediate" }
-  ],
-  correctOptionId: "a"
-}
-],
-readingPassages: [
-  {
-    id: "reading-b-10",
-    difficulty: "B",
-    title: "Digital Learning Trends",
-    body: `
-The growth of digital technology has transformed the way students access education. Online platforms now allow learners to participate in courses from anywhere in the world. As a result, traditional classroom boundaries are gradually disappearing.
 
-Many educators argue that digital tools increase learning (1) ___ by offering interactive content and flexible schedules. Students can review recorded lectures and revisit complex topics at their own pace.
+    readingPassages: [
+    {
+      id: "reading-a-1",
+      difficulty: "A",
+      title: "Trigger Points",
+      body: `
+All approaches aim to increase blood flow to areas of tension and to release painful knots (1) ___ muscle known as "trigger points". "Trigger points are tense areas of muscle that are almost constantly contracting," says Kippen. "The contraction causes pain, which in turn causes contraction, so you have a vicious circle. This is what deep tissue massage aims to break."
 
-However, critics point out that excessive screen time may (2) ___ students' ability to maintain concentration. Without direct supervision, some learners may struggle to remain disciplined and motivated.
+The way to do this, as I found out under Ogedengbe's elbow, is to apply pressure (2) ___ the point, stopping the blood flow, and then to release, which causes the brain to flood the affected area (3) ___ blood, encouraging the muscle to relax.
 
-Recent studies show that students who actively (3) ___ in online discussions tend to achieve better academic results. Engagement appears to play a crucial role in digital environments.
-
-Researchers are continuing to investigate the long-term (4) ___ of virtual education on academic performance and social development. While accessibility has improved, questions remain about overall learning quality.
-
-As institutions refine their strategies, blended models that combine online resources with face-to-face instruction may provide a practical (5) ___ to modern educational challenges.
+At the same time, says Kippen, you can fool the tensed muscle into relaxing (4) ___ applying pressure to a complementary one nearby. "If you cause any muscle to contract, its opposite will expand. So you try to trick the body (5) ___ relaxing the muscle that is in spasm."
 `,
-    blanks: [
-      {
-        id: "read-b-10-blank-1",
-        type: "reading-blank",
-        difficulty: "B",
-        prompt: "",
-        passageId: "reading-b-10",
-        blankNumber: 1,
-        options: ["efficiency", "salary", "location", "attendance"],
-        correctOption: "efficiency",
-      },
-      {
-        id: "read-b-10-blank-2",
-        type: "reading-blank",
-        difficulty: "B",
-        prompt: "",
-        passageId: "reading-b-10",
-        blankNumber: 2,
-        options: ["improve", "limit", "encourage", "expand"],
-        correctOption: "limit",
-      },
-      {
-        id: "read-b-10-blank-3",
-        type: "reading-blank",
-        difficulty: "B",
-        prompt: "",
-        passageId: "reading-b-10",
-        blankNumber: 3,
-        options: ["participate", "avoid", "ignore", "delay"],
-        correctOption: "participate",
-      },
-      {
-        id: "read-b-10-blank-4",
-        type: "reading-blank",
-        difficulty: "B",
-        prompt: "",
-        passageId: "reading-b-10",
-        blankNumber: 4,
-        options: ["impact", "trend", "difference", "pattern"],
-        correctOption: "impact",
-      },
-      {
-        id: "read-b-10-blank-5",
-        type: "reading-blank",
-        difficulty: "B",
-        prompt: "",
-        passageId: "reading-b-10",
-        blankNumber: 5,
-        options: ["response", "conflict", "problem", "reaction"],
-        correctOption: "response",
-      },
-    ],
-  },
-{
-  id: "reading-c-11",
+      blanks: [
+        {
+          id: "read-a-1-blank-1",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-1",
+          blankNumber: 1,
+          options: ["of", "in", "with", "at"],
+          correctOption: "of",
+        },
+        {
+          id: "read-a-1-blank-2",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-1",
+          blankNumber: 2,
+          options: ["in", "with", "to", "for"],
+          correctOption: "to",
+        },
+        {
+          id: "read-a-1-blank-3",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-1",
+          blankNumber: 3,
+          options: ["with", "by", "to", "on"],
+          correctOption: "with",
+        },
+        {
+          id: "read-a-1-blank-4",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-1",
+          blankNumber: 4,
+          options: ["by", "with", "in", "at"],
+          correctOption: "by",
+        },
+        {
+          id: "read-a-1-blank-5",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-1",
+          blankNumber: 5,
+          options: ["into", "with", "on", "at"],
+          correctOption: "into",
+        },
+      ],
+    },
+    {
+      id: "reading-a-2",
+      difficulty: "A",
+      title: "The Speech of Alchemy",
+      body: `
+To learn the speech of alchemy, an early form of (1) ___ in which people attempted to turn metals into gold, it helps to think back to a time when there was no science: no atomic number or weight, no periodic chart, no list of elements.
+
+To the alchemists the (2) ___ was not made of leptons, bosons, gluons, and quarks. Instead it was made of substances, and one substance — say, walnut oil — could be just as (3) ___ as another — say, silver — even though modern (4) ___ would say one is heterogeneous and the other homogeneous.
+
+Without knowledge of atomic structures, how would it be (5) ___ to tell elements from compounds?
+`,
+      blanks: [
+        {
+          id: "read-a-2-blank-1",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-2",
+          blankNumber: 1,
+          options: ["biology", "science", "technology", "history"],
+          correctOption: "science",
+        },
+        {
+          id: "read-a-2-blank-2",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-2",
+          blankNumber: 2,
+          options: ["universe", "Earth", "worldwide", "world"],
+          correctOption: "universe",
+        },
+        {
+          id: "read-a-2-blank-3",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-2",
+          blankNumber: 3,
+          options: ["same", "complete", "pure", "wholesome"],
+          correctOption: "pure",
+        },
+        {
+          id: "read-a-2-blank-4",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-2",
+          blankNumber: 4,
+          options: ["affidavit", "law", "scientists", "researchers"],
+          correctOption: "scientists",
+        },
+        {
+          id: "read-a-2-blank-5",
+          type: "reading-blank",
+          difficulty: "A",
+          prompt: "",
+          passageId: "reading-a-2",
+          blankNumber: 5,
+          options: ["difficult", "necessary", "available", "possible"],
+          correctOption: "possible",
+        },
+      ],
+    },
+    {
+  id: "reading-c-1",
   difficulty: "C",
-  title: "Workplace Adaptation",
+  title: "Academic Writing",
   body: `
-Modern workplaces are evolving rapidly due to technological innovation and shifting employee expectations. Companies must continuously adjust their strategies to remain competitive in changing markets.
-
-Flexible policies are believed to improve overall (1) ___ by allowing staff to balance professional responsibilities with personal commitments. Employees who experience greater autonomy often demonstrate higher motivation.
-
-Nevertheless, organisational leaders warn that reduced in-person contact can (2) ___ team cohesion. Informal conversations that once strengthened workplace relationships may become less frequent.
-
-Research indicates that employees who clearly (3) ___ performance standards are more likely to succeed in flexible environments. Clear communication plays an essential role in maintaining productivity.
-
-Experts are examining the broader (4) ___ of adaptive work models on long-term stability and innovation. While adaptability increases resilience, it may also introduce structural challenges.
-
-Ultimately, sustainable growth depends on a careful (5) ___ of organisational objectives and employee wellbeing.
+Academic writing addresses complex issues that require high-order thinking skills to comprehend (e.g., critical reflective logical and creative thinking). Think of your writing (1) ___ way: one of the most important attributes of a good teacher is the ability to explain complex ideas in a way that is understandable and relatable to the topic being (2) ___. This is also one of the main functions of academic writing - describing and explaining the significance of complex ideas as clearly as possible. Often (3) ___ to as higher-order thinking skills, these include cognitive processes that are used to comprehend solve problems and express concepts or that describe abstract ideas that cannot be easily acted out pointed to or shown with images. As a writer you must take (4) ___ the role of a good teacher by summarizing a lot of complex information into a well-organized synthesis of ideas concepts and recommendations that (5) ___ to a better understanding of the research problem.
 `,
   blanks: [
     {
-      id: "read-c-11-blank-1",
+      id: "read-c-1-blank-1",
       type: "reading-blank",
       difficulty: "C",
       prompt: "",
-      passageId: "reading-c-11",
+      passageId: "reading-c-1",
       blankNumber: 1,
-      options: ["attendance", "efficiency", "salary", "promotion"],
-      correctOption: "efficiency",
+      options: ["your", "its", "this", "that"],
+      correctOption: "this",
     },
     {
-      id: "read-c-11-blank-2",
+      id: "read-c-1-blank-2",
       type: "reading-blank",
       difficulty: "C",
       prompt: "",
-      passageId: "reading-c-11",
+      passageId: "reading-c-1",
       blankNumber: 2,
-      options: ["strengthen", "expand", "weaken", "encourage"],
-      correctOption: "weaken",
+      options: ["discussed", "discussing", "presented", "presenting"],
+      correctOption: "presented",
     },
     {
-      id: "read-c-11-blank-3",
+      id: "read-c-1-blank-3",
       type: "reading-blank",
       difficulty: "C",
       prompt: "",
-      passageId: "reading-c-11",
+      passageId: "reading-c-1",
       blankNumber: 3,
-      options: ["ignore", "define", "avoid", "delay"],
-      correctOption: "define",
+      options: ["referring", "referred", "relating", "related"],
+      correctOption: "referred",
     },
     {
-      id: "read-c-11-blank-4",
+      id: "read-c-1-blank-4",
       type: "reading-blank",
       difficulty: "C",
       prompt: "",
-      passageId: "reading-c-11",
+      passageId: "reading-c-1",
       blankNumber: 4,
-      options: ["impact", "difference", "trend", "pattern"],
-      correctOption: "impact",
+      options: ["on", "up", "off", "with"],
+      correctOption: "on",
     },
     {
-      id: "read-c-11-blank-5",
+      id: "read-c-1-blank-5",
       type: "reading-blank",
       difficulty: "C",
       prompt: "",
-      passageId: "reading-c-11",
+      passageId: "reading-c-1",
       blankNumber: 5,
-      options: ["assessment", "reaction", "conflict", "problem"],
-      correctOption: "assessment",
+      options: ["lead", "add", "contributed", "contribute"],
+      correctOption: "contribute",
     },
+  ],
+},
+  ],
+
+  readingSingleChoice: [
+    {
+      id: "reading-single-a-1",
+      type: "reading-single",
+      difficulty: "A",
+      passage: `
+Governments, business and many types of institutions collect, organise and record statistics. Statistics capture vital information about such things as the economy, population and the environment and therefore allow meaningful comparisons to be made. This can then inform decisions and plans made about such issues which in turn become public policies. While it may be the issues behind the statistics, rather than the statistics as such that command the public's attention, it must be recognised that it is the figures that inform these issues.
+`,
+      prompt: "The author considers statistics to be important because",
+      options: [
+        { id: "a", text: "they are recorded by official organisations." },
+        { id: "b", text: "the general public have an interest in them." },
+        { id: "c", text: "they are affected by plans and policies." },
+        { id: "d", text: "they assist in driving public issues." }
+      ],
+      correctOptionId: "d"
+    }
+  ],
+
+  readingMultipleChoice: [],
+readingReorder: [
+  {
+    id: "reading-reorder-b-1",
+    type: "reading-reorder",
+    difficulty: "B",
+    prompt: "Put the sentences in the correct order.",
+    items: [
+      "Scrutiny by the news media shamed many developed countries into curbing their bad practices.",
+       "Today, the projects of organizations like the World Bank are meticulously inspected by watchdog groups.",
+      "Although the system is far from perfect, it is certainly more transparent than it was when foreign aid routinely helped ruthless dictators stay in power.",
+       "But beginning in the 1990s, foreign aid had begun to slowly improve.",
+    ],
+    correctOrder: [
+     "But beginning in the 1990s, foreign aid had begun to slowly improve.",
+     "Scrutiny by the news media shamed many developed countries into curbing their bad practices.",
+     "Today, the projects of organizations like the World Bank are meticulously inspected by watchdog groups.",
+       "Although the system is far from perfect, it is certainly more transparent than it was when foreign aid routinely helped ruthless dictators stay in power.",
+    ],
+  },
+  {
+    id: "reading-reorder-b-2",
+    type: "reading-reorder",
+    difficulty: "B",
+    prompt: "Put the sentences in the correct order.",
+    items: [
+      "Because you might be living off campus in the second year.",
+      "This is important that you see the facilities and accommodations around the school.",
+      "Never, if you can avoid it, accept the offer before going to the place and having a look. You should go and see once you have a chance.",
+      "There are more than 100 schools in the country.",
+    ],
+    correctOrder: [
+     "There are more than 100 schools in the country.",
+     "Never, if you can avoid it, accept the offer before going to the place and having a look. You should go and see once you have a chance.",
+     "This is important that you see the facilities and accommodations around the school.",
+      "Because you might be living off campus in the second year.",
+    ],
+  },
+  {
+  id: "reading-reorder-c-1",
+  type: "reading-reorder",
+  difficulty: "C",
+  prompt: "Put the sentences in the correct order.",
+  items: [
+    "As a result, Senegal's marine ecosystem has started to go the same way as ours.",
+    "The European Union has two big fish problems.",
+    "One is that, partly as a result of its failure to manage them properly, its own fisheries can no longer meet European demand.",
+    "The EU has tried to solve both problems by sending its fishermen to West Africa. Since 1979 it has struck agreements with the government of Senegal, granting our fleets access to its waters.",
+    "The other is that its governments won't confront their fishing lobbies and decommission all the surplus boats.",
+  ],
+  correctOrder: [
+    "The European Union has two big fish problems.",
+    "One is that, partly as a result of its failure to manage them properly, its own fisheries can no longer meet European demand.",
+    "The other is that its governments won't confront their fishing lobbies and decommission all the surplus boats.",
+    "The EU has tried to solve both problems by sending its fishermen to West Africa. Since 1979 it has struck agreements with the government of Senegal, granting our fleets access to its waters.",
+    "As a result, Senegal's marine ecosystem has started to go the same way as ours.",
   ],
 },
 ],
 listening: {
-  siwBlocks: [],
-  wfdItems: [
+  listeningFillBlanks: [
     {
-      id: "wfd-a-1",
-      type: "wfd",
-      difficulty: "A",
-      prompt: "Type the sentence exactly as dictated.",
-      transcript: "Field trips are an essential part of geography courses",
-      expectedText: "Field trips are an essential part of geography courses",
-      audioUrl: "/audio/155.mp3",
-    },
-    {
-      id: "wfd-b-1",
-      type: "wfd",
-      difficulty: "B",
-      prompt: "Type the sentence exactly as dictated.",
-      transcript:
-        "The archaeologist’s new discoveries stand out in the previously overlooked foundations",
-      expectedText:
-        "The archaeologist’s new discoveries stand out in the previously overlooked foundations",
-      audioUrl: "/audio/185.mp3",
-    },
-    {
-      id: "wfd-c-1",
-      type: "wfd",
+      id: "lfib-a-1",
+      type: "listening-fill-in-the-blanks",
       difficulty: "C",
-      prompt: "Type the sentence exactly as dictated.",
-      transcript: "There is a great deal of debate on that topic",
-      expectedText: "There is a great deal of debate on that topic",
-      audioUrl: "/audio/172.mp3",
+      prompt: "Listen to the recording and type the missing words in each blank.",
+      audioUrl: "/audio/FIB1.mp3",
+      transcript: `
+It isn't necessary to have a [blank-1] knowledge of, say, the intricacies of counterpoint, or even to be able to read music to understand it. Usually, getting the point of a piece of music, its emotional and dramatic [blank-2], is immediate or simply requires you to become more [blank-3] with it. Of course, prolonged study of music and its [blank-4], as in any other field, will increase your understanding, but not necessarily your enjoyment.
+
+Now, I realize that it can require a good deal of willingness on our part to risk new sensations, and there is a lot of music that will seem unfamiliar and alien to you on a first [blank-5].
+`,
+      blanks: [
+        { id: "lfib-a-1-blank-1", answer: "specialized" },
+        { id: "lfib-a-1-blank-2", answer: "impact" },
+        { id: "lfib-a-1-blank-3", answer: "familiar" },
+        { id: "lfib-a-1-blank-4", answer: "composition" },
+        { id: "lfib-a-1-blank-5", answer: "hearing" },
+      ],
     },
+    {
+  id: "lfib-a-2",
+  type: "listening-fill-in-the-blanks",
+  difficulty: "A",
+  prompt: "Listen to the recording and type the missing words in each blank.",
+  audioUrl: "/audio/FIB2.mp3",
+  transcript: `
+Financial markets swung wildly yesterday in the frenzied trading market by further selling of [blank-1] and fears about an unraveling of the global carry trade. At the same time, trading in the US and European credit markets were exceptionally [blank-2] for a third consecutive day. London trading was marked by particularly wild [blank-3] in the prices of credit derivatives, used to ensure investors against [blank-4] defaults.
+`,
+  blanks: [
+    { id: "lfib-a-2-blank-1", answer: "equities" },
+    { id: "lfib-a-2-blank-2", answer: "heavy" },
+    { id: "lfib-a-2-blank-3", answer: "swings" },
+    { id: "lfib-a-2-blank-4", answer: "corporate" },
   ],
 },
+{
+  id: "lfib-a-3",
+  type: "listening-fill-in-the-blanks",
+  difficulty: "A",
+  prompt: "Listen to the recording and type the missing words in each blank.",
+  audioUrl: "/audio/FIB3.mp3",
+  transcript: `
+To be honest, the biggest problem for most undergraduate students, in terms of academic writing, is not only adapting to a far more [blank-1] and formal style, but also learning how to ascertain the difference between important, [blank-2] information and unnecessary, or even irrelevant [blank-3]. In my experience, I would say it takes students their first year, if not longer, to [blank-4] what is required and to start to implement those requirements in their writing. What they really should be doing, if they are struggling with written [blank-5], is to seek help from the [blank-6] support services which are available at the University.
+`,
+  blanks: [
+    { id: "lfib-a-3-blank-1", answer: "structured" },
+    { id: "lfib-a-3-blank-2", answer: "valid" },
+    { id: "lfib-a-3-blank-3", answer: "material" },
+    { id: "lfib-a-3-blank-4", answer: "appreciate" },
+    { id: "lfib-a-3-blank-5", answer: "assignments" },
+    { id: "lfib-a-3-blank-6", answer: "excellent" },
+  ],
+}
+  ],
+  hiwItems: [],
+  wfdItems: [],
+}
 };

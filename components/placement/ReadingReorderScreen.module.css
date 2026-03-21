@@ -1,0 +1,239 @@
+.page {
+  --yellow: #ffd43b;
+  --bg: #f3f4f6;
+  --card: #fffdf4;
+  --panel: #ffffff;
+  --border: #111111;
+  --muted: #5f6368;
+
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--border);
+  padding: 32px 16px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.shell {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.intro {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 var(--border);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--yellow);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.counter {
+  padding: 6px 12px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.desc {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 52px 1fr 46px;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 var(--border);
+  padding: 14px 14px 14px 12px;
+  cursor: grab;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  user-select: none;
+}
+
+.item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--border);
+}
+
+.dragging {
+  opacity: 0.72;
+  transform: rotate(1deg);
+  cursor: grabbing;
+}
+
+.over {
+  background: #fff6cc;
+  outline: 2px dashed var(--border);
+  outline-offset: 2px;
+}
+
+.order {
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.text {
+  font-size: 16px;
+  line-height: 1.7;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: #f7f7f7;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.leftActions,
+.rightActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--border);
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 var(--border);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.actions button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--border);
+}
+
+.primary {
+  background: var(--yellow) !important;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 12px;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .item {
+    grid-template-columns: 42px 1fr 40px;
+    gap: 10px;
+    padding: 12px 10px;
+  }
+
+  .order {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .text {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .handle {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .leftActions,
+  .rightActions {
+    width: 100%;
+  }
+
+  .leftActions button,
+  .rightActions button {
+    flex: 1;
+  }
+}

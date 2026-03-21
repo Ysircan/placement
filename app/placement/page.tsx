@@ -8,8 +8,9 @@ import SectionIntro from "@/components/placement/SectionIntro";
 import QuestionScreen from "@/components/placement/QuestionScreen";
 import ResultScreen from "@/components/placement/ResultScreen";
 import ReadingScreen from "@/components/placement/ReadingScreen";
-import ListeningScreen from "@/components/placement/ListeningScreen";
-import { gradeWFD } from "@/lib/scoring/gradeWFD";
+import ReadingChoiceScreen from "@/components/placement/ReadingChoiceScreen";
+import ReadingReorderScreen from "@/components/placement/ReadingReorderScreen";
+import ListeningFillBlankScreen from "@/components/placement/ListeningFillBlanksScreen";
 
 import { questions as quickQuestions } from "@/lib/placement/quickQuestions";
 import { questions as fullQuestions } from "@/lib/placement/fullQuestions";
@@ -21,6 +22,10 @@ type Step =
   | "vocabQuestion"
   | "readingIntro"
   | "readingQuestion"
+  | "readingSingleQuestion"
+  | "readingReorderQuestion"
+  | "readingFinalQuestion"
+  | "readingFinalReorderQuestion"
   | "listeningIntro"
   | "listeningQuestion"
   | "listeningComplete"
@@ -33,6 +38,7 @@ type DifficultyStats = {
 };
 
 type ReadingStats = {
+  A: { correct: number; total: number };
   B: { correct: number; total: number };
   C: { correct: number; total: number };
 };
@@ -47,9 +53,13 @@ type SavedProgress = {
   step: Step;
   vocabIndex: number;
   readingPassageIndex: number;
+  readingSingleIndex: number;
+  readingReorderIndex: number;
+  listeningFillBlankIndex: number;
   score: number;
   difficultyStats: DifficultyStats;
   readingStats: ReadingStats;
+  listeningStats: ListeningStats;
   studentName: string;
   targetScore: string;
   selectedExam: string;
@@ -62,6 +72,7 @@ const DEFAULT_DIFFICULTY_STATS: DifficultyStats = {
 };
 
 const DEFAULT_READING_STATS: ReadingStats = {
+  A: { correct: 0, total: 0 },
   B: { correct: 0, total: 0 },
   C: { correct: 0, total: 0 },
 };
@@ -76,12 +87,12 @@ const STORAGE_KEY = "placement_progress";
 
 export default function PlacementPage() {
   const [step, setStep] = useState<Step>("start");
-
   const [vocabIndex, setVocabIndex] = useState<number>(0);
-
-  const [readingPassageIndex, setReadingPassageIndex] =
+  const [readingPassageIndex, setReadingPassageIndex] = useState<number>(0);
+  const [readingSingleIndex, setReadingSingleIndex] = useState<number>(0);
+  const [readingReorderIndex, setReadingReorderIndex] = useState<number>(0);
+  const [listeningFillBlankIndex, setListeningFillBlankIndex] =
     useState<number>(0);
-
   const [score, setScore] = useState<number>(0);
 
   const [difficultyStats, setDifficultyStats] =
@@ -100,7 +111,37 @@ export default function PlacementPage() {
   const activeQuestions =
     selectedExam === "full" ? fullQuestions : quickQuestions;
 
+  const listeningData = activeQuestions.listening ?? {
+    listeningFillBlanks: [],
+    hiwItems: [],
+    wfdItems: [],
+  };
+
+  const regularReadingPassages = activeQuestions.readingPassages.filter(
+    (p) => p.id !== "reading-c-1"
+  );
+
+  const finalReadingPassage =
+    activeQuestions.readingPassages.find((p) => p.id === "reading-c-1") ?? null;
+
+  const regularReadingReorders = activeQuestions.readingReorder.filter(
+    (q) => q.id !== "reading-reorder-c-1"
+  );
+
+  const finalReadingReorder =
+    activeQuestions.readingReorder.find(
+      (q) => q.id === "reading-reorder-c-1"
+    ) ?? null;
+
+  const listeningFillBlankItems = listeningData.listeningFillBlanks ?? [];
+
   const currentQuestion = activeQuestions.vocabulary[vocabIndex];
+  const currentReadingPassage = regularReadingPassages[readingPassageIndex];
+  const currentReadingSingle =
+    activeQuestions.readingSingleChoice[readingSingleIndex];
+  const currentReadingReorder = regularReadingReorders[readingReorderIndex];
+  const currentListeningFillBlank =
+    listeningFillBlankItems[listeningFillBlankIndex] ?? null;
 
   const totalQuestions = useMemo(() => {
     return (
@@ -108,9 +149,14 @@ export default function PlacementPage() {
       activeQuestions.readingPassages.reduce(
         (sum, passage) => sum + passage.blanks.length,
         0
-      )
+      ) +
+      activeQuestions.readingSingleChoice.length +
+      activeQuestions.readingReorder.length +
+      listeningFillBlankItems.reduce((sum, item) => sum + item.blanks.length, 0) +
+      (listeningData.hiwItems?.length ?? 0) +
+      (listeningData.wfdItems?.length ?? 0)
     );
-  }, [activeQuestions]);
+  }, [activeQuestions, listeningFillBlankItems, listeningData]);
 
   useEffect(() => {
     try {
@@ -122,9 +168,29 @@ export default function PlacementPage() {
       setStep(parsed.step ?? "start");
       setVocabIndex(parsed.vocabIndex ?? 0);
       setReadingPassageIndex(parsed.readingPassageIndex ?? 0);
+      setReadingSingleIndex(parsed.readingSingleIndex ?? 0);
+      setReadingReorderIndex(parsed.readingReorderIndex ?? 0);
+      setListeningFillBlankIndex(parsed.listeningFillBlankIndex ?? 0);
       setScore(parsed.score ?? 0);
-      setDifficultyStats(parsed.difficultyStats ?? DEFAULT_DIFFICULTY_STATS);
-      setReadingStats(parsed.readingStats ?? DEFAULT_READING_STATS);
+
+      setDifficultyStats({
+        A: parsed.difficultyStats?.A ?? { correct: 0, total: 0 },
+        B: parsed.difficultyStats?.B ?? { correct: 0, total: 0 },
+        C: parsed.difficultyStats?.C ?? { correct: 0, total: 0 },
+      });
+
+      setReadingStats({
+        A: parsed.readingStats?.A ?? { correct: 0, total: 0 },
+        B: parsed.readingStats?.B ?? { correct: 0, total: 0 },
+        C: parsed.readingStats?.C ?? { correct: 0, total: 0 },
+      });
+
+      setListeningStats({
+        A: parsed.listeningStats?.A ?? { correct: 0, total: 0 },
+        B: parsed.listeningStats?.B ?? { correct: 0, total: 0 },
+        C: parsed.listeningStats?.C ?? { correct: 0, total: 0 },
+      });
+
       setStudentName(parsed.studentName ?? "");
       setTargetScore(parsed.targetScore ?? "");
       setSelectedExam(parsed.selectedExam ?? "");
@@ -136,9 +202,13 @@ export default function PlacementPage() {
       step,
       vocabIndex,
       readingPassageIndex,
+      readingSingleIndex,
+      readingReorderIndex,
+      listeningFillBlankIndex,
       score,
       difficultyStats,
       readingStats,
+      listeningStats,
       studentName,
       targetScore,
       selectedExam,
@@ -149,9 +219,13 @@ export default function PlacementPage() {
     step,
     vocabIndex,
     readingPassageIndex,
+    readingSingleIndex,
+    readingReorderIndex,
+    listeningFillBlankIndex,
     score,
     difficultyStats,
     readingStats,
+    listeningStats,
     studentName,
     targetScore,
     selectedExam,
@@ -164,9 +238,8 @@ export default function PlacementPage() {
     const selected = localStorage.getItem(storageKey);
 
     const correct =
-      currentQuestion.options.find(
-        (option) => option.text === selected
-      )?.id === currentQuestion.correctOptionId;
+      currentQuestion.options.find((option) => option.text === selected)?.id ===
+      currentQuestion.correctOptionId;
 
     const difficulty = currentQuestion.difficulty;
 
@@ -192,18 +265,19 @@ export default function PlacementPage() {
   };
 
   const handleReadingNext = (answers: Record<number, string>) => {
-    const passage = activeQuestions.readingPassages[readingPassageIndex];
+    const passage = regularReadingPassages[readingPassageIndex];
     if (!passage) return;
 
     let addedScore = 0;
 
     const delta: ReadingStats = {
+      A: { correct: 0, total: 0 },
       B: { correct: 0, total: 0 },
       C: { correct: 0, total: 0 },
     };
 
     passage.blanks.forEach((blank) => {
-      const difficulty = blank.difficulty as "B" | "C";
+      const difficulty = blank.difficulty as "A" | "B" | "C";
       const userAnswer = answers[blank.blankNumber];
       const correct = userAnswer === blank.correctOption;
 
@@ -216,6 +290,10 @@ export default function PlacementPage() {
     });
 
     setReadingStats((prev) => ({
+      A: {
+        correct: prev.A.correct + delta.A.correct,
+        total: prev.A.total + delta.A.total,
+      },
       B: {
         correct: prev.B.correct + delta.B.correct,
         total: prev.B.total + delta.B.total,
@@ -230,11 +308,232 @@ export default function PlacementPage() {
       setScore((prev) => prev + addedScore);
     }
 
-    if (readingPassageIndex + 1 < activeQuestions.readingPassages.length) {
+    if (readingPassageIndex + 1 < regularReadingPassages.length) {
       setReadingPassageIndex((prev) => prev + 1);
-    } else {
-      setStep("listeningIntro");
+      return;
     }
+
+    if (activeQuestions.readingSingleChoice.length > 0) {
+      setStep("readingSingleQuestion");
+      return;
+    }
+
+    if (regularReadingReorders.length > 0) {
+      setStep("readingReorderQuestion");
+      return;
+    }
+
+    if (finalReadingPassage) {
+      setStep("readingFinalQuestion");
+      return;
+    }
+
+    if (finalReadingReorder) {
+      setStep("readingFinalReorderQuestion");
+      return;
+    }
+
+    setStep("listeningIntro");
+  };
+
+  const handleReadingSingleNext = (selectedIds: string[]) => {
+    if (!currentReadingSingle) return;
+
+    const selectedId = selectedIds[0] ?? "";
+    const correct = selectedId === currentReadingSingle.correctOptionId;
+    const difficulty = currentReadingSingle.difficulty;
+
+    setReadingStats((prev) => ({
+      ...prev,
+      [difficulty]: {
+        correct: prev[difficulty].correct + (correct ? 1 : 0),
+        total: prev[difficulty].total + 1,
+      },
+    }));
+
+    if (correct) {
+      setScore((prev) => prev + 1);
+    }
+
+    const next = readingSingleIndex + 1;
+
+    if (next < activeQuestions.readingSingleChoice.length) {
+      setReadingSingleIndex(next);
+      return;
+    }
+
+    if (regularReadingReorders.length > 0) {
+      setStep("readingReorderQuestion");
+      return;
+    }
+
+    if (finalReadingPassage) {
+      setStep("readingFinalQuestion");
+      return;
+    }
+
+    if (finalReadingReorder) {
+      setStep("readingFinalReorderQuestion");
+      return;
+    }
+
+    setStep("listeningIntro");
+  };
+
+  const handleReadingReorderNext = (payload: {
+    questionId: string;
+    studentOrder: string[];
+    isCorrect: boolean;
+  }) => {
+    if (!currentReadingReorder) return;
+
+    const difficulty = currentReadingReorder.difficulty as "A" | "B" | "C";
+
+    setReadingStats((prev) => ({
+      ...prev,
+      [difficulty]: {
+        correct: prev[difficulty].correct + (payload.isCorrect ? 1 : 0),
+        total: prev[difficulty].total + 1,
+      },
+    }));
+
+    if (payload.isCorrect) {
+      setScore((prev) => prev + 1);
+    }
+
+    const next = readingReorderIndex + 1;
+
+    if (next < regularReadingReorders.length) {
+      setReadingReorderIndex(next);
+      return;
+    }
+
+    if (finalReadingPassage) {
+      setStep("readingFinalQuestion");
+      return;
+    }
+
+    if (finalReadingReorder) {
+      setStep("readingFinalReorderQuestion");
+      return;
+    }
+
+    setStep("listeningIntro");
+  };
+
+  const handleFinalReadingNext = (answers: Record<number, string>) => {
+    const passage = finalReadingPassage;
+    if (!passage) return;
+
+    let addedScore = 0;
+
+    const delta: ReadingStats = {
+      A: { correct: 0, total: 0 },
+      B: { correct: 0, total: 0 },
+      C: { correct: 0, total: 0 },
+    };
+
+    passage.blanks.forEach((blank) => {
+      const difficulty = blank.difficulty as "A" | "B" | "C";
+      const userAnswer = answers[blank.blankNumber];
+      const correct = userAnswer === blank.correctOption;
+
+      delta[difficulty].total += 1;
+
+      if (correct) {
+        delta[difficulty].correct += 1;
+        addedScore += 1;
+      }
+    });
+
+    setReadingStats((prev) => ({
+      A: {
+        correct: prev.A.correct + delta.A.correct,
+        total: prev.A.total + delta.A.total,
+      },
+      B: {
+        correct: prev.B.correct + delta.B.correct,
+        total: prev.B.total + delta.B.total,
+      },
+      C: {
+        correct: prev.C.correct + delta.C.correct,
+        total: prev.C.total + delta.C.total,
+      },
+    }));
+
+    if (addedScore > 0) {
+      setScore((prev) => prev + addedScore);
+    }
+
+    if (finalReadingReorder) {
+      setStep("readingFinalReorderQuestion");
+      return;
+    }
+
+    setStep("listeningIntro");
+  };
+
+  const handleFinalReadingReorderNext = (payload: {
+    questionId: string;
+    studentOrder: string[];
+    isCorrect: boolean;
+  }) => {
+    if (!finalReadingReorder) return;
+
+    const difficulty = finalReadingReorder.difficulty as "A" | "B" | "C";
+
+    setReadingStats((prev) => ({
+      ...prev,
+      [difficulty]: {
+        correct: prev[difficulty].correct + (payload.isCorrect ? 1 : 0),
+        total: prev[difficulty].total + 1,
+      },
+    }));
+
+    if (payload.isCorrect) {
+      setScore((prev) => prev + 1);
+    }
+
+    setStep("listeningIntro");
+  };
+
+  const handleListeningFillBlankNext = (answers: string[]) => {
+    if (!currentListeningFillBlank) return;
+
+    const difficulty = currentListeningFillBlank.difficulty as "A" | "B" | "C";
+
+    let correctCount = 0;
+
+    currentListeningFillBlank.blanks.forEach((blank, index) => {
+      const userAnswer = (answers[index] ?? "").trim().toLowerCase();
+      const expectedAnswer = blank.answer.trim().toLowerCase();
+
+      if (userAnswer === expectedAnswer) {
+        correctCount += 1;
+      }
+    });
+
+    setListeningStats((prev) => ({
+      ...prev,
+      [difficulty]: {
+        correct: prev[difficulty].correct + correctCount,
+        total:
+          prev[difficulty].total + currentListeningFillBlank.blanks.length,
+      },
+    }));
+
+    if (correctCount > 0) {
+      setScore((prev) => prev + correctCount);
+    }
+
+    const next = listeningFillBlankIndex + 1;
+
+    if (next < listeningFillBlankItems.length) {
+      setListeningFillBlankIndex(next);
+      return;
+    }
+
+    setStep("listeningComplete");
   };
 
   const handleRestart = () => {
@@ -243,6 +542,9 @@ export default function PlacementPage() {
     setScore(0);
     setVocabIndex(0);
     setReadingPassageIndex(0);
+    setReadingSingleIndex(0);
+    setReadingReorderIndex(0);
+    setListeningFillBlankIndex(0);
     setDifficultyStats(DEFAULT_DIFFICULTY_STATS);
     setReadingStats(DEFAULT_READING_STATS);
     setListeningStats(DEFAULT_LISTENING_STATS);
@@ -255,9 +557,7 @@ export default function PlacementPage() {
   return (
     <>
       {step === "start" && (
-        <StartScreen
-          onStart={() => setStep("preTestIntro")}
-        />
+        <StartScreen onStart={() => setStep("preTestIntro")} />
       )}
 
       {step === "preTestIntro" && (
@@ -300,72 +600,90 @@ export default function PlacementPage() {
         />
       )}
 
-      {step === "readingQuestion" && (
+      {step === "readingQuestion" && currentReadingPassage && (
         <ReadingScreen
-          key={readingPassageIndex}
-          passage={activeQuestions.readingPassages[readingPassageIndex].body}
-          blanks={activeQuestions.readingPassages[readingPassageIndex].blanks}
+          key={currentReadingPassage.id}
+          passage={currentReadingPassage.body}
+          blanks={currentReadingPassage.blanks}
           passageIndex={readingPassageIndex}
-          totalPassages={activeQuestions.readingPassages.length}
+          totalPassages={regularReadingPassages.length}
           onNext={handleReadingNext}
+        />
+      )}
+
+      {step === "readingSingleQuestion" && currentReadingSingle && (
+        <ReadingChoiceScreen
+          key={currentReadingSingle.id}
+          passage={currentReadingSingle.passage}
+          question={currentReadingSingle.prompt}
+          options={currentReadingSingle.options}
+          questionNumber={readingSingleIndex + 1}
+          totalQuestions={activeQuestions.readingSingleChoice.length}
+          mode="single"
+          onNext={handleReadingSingleNext}
+        />
+      )}
+
+      {step === "readingReorderQuestion" && currentReadingReorder && (
+        <ReadingReorderScreen
+          key={currentReadingReorder.id}
+          question={currentReadingReorder}
+          questionNumber={readingReorderIndex + 1}
+          totalQuestions={regularReadingReorders.length}
+          onNext={handleReadingReorderNext}
+        />
+      )}
+
+      {step === "readingFinalQuestion" && finalReadingPassage && (
+        <ReadingScreen
+          key={finalReadingPassage.id}
+          passage={finalReadingPassage.body}
+          blanks={finalReadingPassage.blanks}
+          passageIndex={regularReadingPassages.length}
+          totalPassages={regularReadingPassages.length + 1}
+          onNext={handleFinalReadingNext}
+        />
+      )}
+
+      {step === "readingFinalReorderQuestion" && finalReadingReorder && (
+        <ReadingReorderScreen
+          key={finalReadingReorder.id}
+          question={finalReadingReorder}
+          questionNumber={regularReadingReorders.length + 1}
+          totalQuestions={regularReadingReorders.length + 1}
+          onNext={handleFinalReadingReorderNext}
         />
       )}
 
       {step === "listeningIntro" && (
         <SectionIntro
           title="Listening"
-          description="Each recording will play a maximum of two times."
+          description="Listen to the recording and type the missing words in each blank."
           buttonText="Start Listening"
-          onStart={() => setStep("listeningQuestion")}
-        />
-      )}
-
-      {step === "listeningQuestion" && (
-        <ListeningScreen
-          items={activeQuestions.listening.wfdItems}
-          onFinish={(answers) => {
-            let listeningScore = 0;
-
-            const delta: ListeningStats = {
-              A: { correct: 0, total: 0 },
-              B: { correct: 0, total: 0 },
-              C: { correct: 0, total: 0 },
-            };
-
-            activeQuestions.listening.wfdItems.forEach((q, i) => {
-              const result = gradeWFD(
-                q.expectedText,
-                answers[i] ?? ""
-              );
-
-              const difficulty = q.difficulty as "A" | "B" | "C";
-
-              delta[difficulty].correct += result.correct;
-              delta[difficulty].total += result.total;
-
-              listeningScore += result.correct;
-            });
-
-            setListeningStats((prev) => ({
-              A: {
-                correct: prev.A.correct + delta.A.correct,
-                total: prev.A.total + delta.A.total,
-              },
-              B: {
-                correct: prev.B.correct + delta.B.correct,
-                total: prev.B.total + delta.B.total,
-              },
-              C: {
-                correct: prev.C.correct + delta.C.correct,
-                total: prev.C.total + delta.C.total,
-              },
-            }));
-
-            setScore((prev) => prev + listeningScore);
-            setStep("listeningComplete");
+          onStart={() => {
+            if (listeningFillBlankItems.length > 0) {
+              setStep("listeningQuestion");
+            } else {
+              setStep("listeningComplete");
+            }
           }}
         />
       )}
+
+      {step === "listeningQuestion" &&
+        (currentListeningFillBlank ? (
+          <ListeningFillBlankScreen
+            item={currentListeningFillBlank}
+            onNext={handleListeningFillBlankNext}
+          />
+        ) : (
+          <SectionIntro
+            title="Listening"
+            description="No listening question available."
+            buttonText="Continue"
+            onStart={() => setStep("listeningComplete")}
+          />
+        ))}
 
       {step === "listeningComplete" && (
         <SectionIntro

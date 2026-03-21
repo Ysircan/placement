@@ -1,6 +1,14 @@
 export type Difficulty = "A" | "B" | "C";
 
-export type QuestionType = "mcq" | "reading-blank" | "siw" | "wfd";
+export type QuestionType =
+  | "mcq"
+  | "reading-blank"
+  | "reading-single"
+  | "reading-multiple"
+  | "reading-reorder"
+  | "listening-fill-in-the-blanks"
+  | "hiw"
+  | "wfd";
 
 interface BaseQuestion<TType extends QuestionType> {
   id: string;
@@ -28,48 +36,77 @@ export interface ReadingBlankQuestion extends BaseQuestion<"reading-blank"> {
 
 export interface ReadingPassage {
   id: string;
-  difficulty: Extract<Difficulty, "B" | "C">;
+  difficulty: Difficulty;
   title: string;
   body: string;
   blanks: ReadingBlankQuestion[];
 }
 
-export interface SIWQuestion extends BaseQuestion<"siw"> {
-  blockId: string;
+export interface ReadingSingleChoiceQuestion
+  extends BaseQuestion<"reading-single"> {
+  passage: string;
+  options: MCQOption[];
+  correctOptionId: string;
+}
+
+export interface ReadingMultipleChoiceQuestion
+  extends BaseQuestion<"reading-multiple"> {
+  passage: string;
+  options: MCQOption[];
+  correctOptionIds: string[];
+}
+
+export interface ReadingReorderQuestion
+  extends BaseQuestion<"reading-reorder"> {
+  items: string[];
+  correctOrder: string[];
+}
+
+export interface ListeningFillBlankItem {
+  id: string;
+  answer: string;
+}
+
+export interface ListeningFillBlankQuestion
+  extends BaseQuestion<"listening-fill-in-the-blanks"> {
+  audioUrl: string;
   transcript: string;
-  tokens: string[];
-  incorrectWordIndex: number;
+  blanks: ListeningFillBlankItem[];
 }
 
-export interface SIWBlock {
-  id: string;
-  title: string;
-  items: SIWQuestion[];
+export interface HIWQuestion extends BaseQuestion<"hiw"> {
+  audioUrl: string;
+  transcript: string;
+  wrongWords: string[];
 }
 
-export interface WFDQuestion {
-  id: string;
-  type: "wfd";
-  difficulty: "A" | "B" | "C";
-  prompt: string;
+export interface WFDQuestion extends BaseQuestion<"wfd"> {
   transcript: string;
   expectedText: string;
-  audioUrl: string; // ✅ 加这一行
+  audioUrl: string;
 }
 
 export interface ListeningQuestionSet {
-  siwBlocks: SIWBlock[];
+  listeningFillBlanks: ListeningFillBlankQuestion[];
+  hiwItems: HIWQuestion[];
   wfdItems: WFDQuestion[];
 }
 
 export interface QuestionBank {
   vocabulary: MCQQuestion[];
   readingPassages: ReadingPassage[];
+  readingSingleChoice: ReadingSingleChoiceQuestion[];
+  readingMultipleChoice: ReadingMultipleChoiceQuestion[];
+  readingReorder: ReadingReorderQuestion[];
   listening: ListeningQuestionSet;
 }
 
 export type Question =
   | MCQQuestion
   | ReadingBlankQuestion
-  | SIWQuestion
+  | ReadingSingleChoiceQuestion
+  | ReadingMultipleChoiceQuestion
+  | ReadingReorderQuestion
+  | ListeningFillBlankQuestion
+  | HIWQuestion
   | WFDQuestion;

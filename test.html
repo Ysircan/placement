@@ -3,199 +3,248 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Diagnostic</title>
+  <title>Listening Fill in the Blanks</title>
   <style>
-    :root{
-      --yellow:#ffd43b;
-      --border:#111;
-      --bg:#f3f4f6;
-      --text:#111;
-      --muted:#4b5563;
-      --white:#ffffff;
+    :root {
+      --bg: #eef0f4;
+      --card: #fffdf7;
+      --text: #111111;
+      --muted: #666666;
+      --line: #111111;
+      --yellow: #ffd84d;
+      --shadow: 5px 5px 0 #111111;
     }
 
-    *{
-      box-sizing:border-box;
+    * {
+      box-sizing: border-box;
     }
 
-    body{
-      margin:0;
-      background:var(--bg);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-      color:var(--text);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
+    html,
+    body {
+      height: 100%;
     }
 
-    .container{
-      width:100%;
-      max-width:720px;
-      padding:40px;
-      margin:0 auto;
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 14px;
     }
 
-    .card{
-      background:var(--white);
-      padding:50px;
-      border:2px solid var(--border);
-      border-radius:18px;
-      box-shadow:6px 6px 0 var(--border);
+    .shell {
+      width: 100%;
+      max-width: 760px;
     }
 
-    .step{
-      display:inline-block;
-      font-size:14px;
-      font-weight:600;
-      color:var(--muted);
-      margin-bottom:18px;
+    .card {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 24px;
     }
 
-    .title{
-      font-size:34px;
-      font-weight:700;
-      line-height:1.2;
-      margin:0 0 16px;
-      color:var(--text);
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 34px);
+      line-height: 1.1;
     }
 
-    .desc{
-      font-size:18px;
-      color:var(--muted);
-      margin:0 0 30px;
-      line-height:1.6;
-      max-width:520px;
+    .intro {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
     }
 
-    .inputWrap{
-      margin-bottom:34px;
+    .audioBox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 4px 4px 0 var(--line);
+      padding: 14px;
+      margin-bottom: 18px;
     }
 
-    .input{
-      width:100%;
-      height:60px;
-      border:2px solid var(--border);
-      border-radius:14px;
-      padding:0 18px;
-      font-size:17px;
-      color:var(--text);
-      background:#fff;
-      outline:none;
-      box-shadow:none;
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    .playBtn {
+      width: 50px;
+      height: 50px;
+      flex: 0 0 auto;
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      background: var(--yellow);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--line);
     }
 
-    .input::placeholder{
-      color:#9ca3af;
+    .audioBar {
+      flex: 1;
+      min-width: 0;
     }
 
-    .input:hover,
-    .input:focus{
-      transform:translate(-2px,-2px);
-      box-shadow:6px 6px 0 var(--border);
+    .audioMeta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
     }
 
-    .footer{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
+    .bar {
+      width: 100%;
+      height: 10px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #ececec;
+      overflow: hidden;
     }
 
-    .backBtn,
-    .btn{
-      border:2px solid var(--border);
-      border-radius:14px;
-      cursor:pointer;
-      font-weight:600;
-      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
-      box-shadow:none;
-      color:var(--text);
+    .barFill {
+      width: 42%;
+      height: 100%;
+      background: #d9defd;
+      border-right: 2px solid var(--line);
     }
 
-    .backBtn{
-      background:#fff;
-      padding:12px 22px;
-      font-size:16px;
+    .passage {
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 4px 4px 0 var(--line);
+      padding: 20px;
+      font-size: 17px;
+      line-height: 2;
+      word-break: break-word;
     }
 
-    .btn{
-      background:var(--yellow);
-      padding:14px 36px;
-      font-size:18px;
+    .blank {
+      display: inline-flex;
+      align-items: center;
+      width: 88px;
+      margin: 0 2px;
+      vertical-align: baseline;
     }
 
-    .backBtn:hover,
-    .btn:hover{
-      transform:translate(-2px,-2px);
-      box-shadow:6px 6px 0 var(--border);
+    .blank input {
+      width: 100%;
+      height: 34px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 4px 8px;
+      font-size: 15px;
+      font-weight: 700;
+      background: #fffdf4;
+      color: var(--text);
+      outline: none;
+      box-shadow: 2px 2px 0 var(--line);
     }
 
-    .backBtn:active,
-    .btn:active{
-      transform:translate(1px,1px);
-      box-shadow:2px 2px 0 var(--border);
+    .blank input:focus {
+      background: #fff6c9;
     }
 
-    @media (max-width:640px){
-      .container{
-        padding:20px;
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .nextBtn {
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: var(--yellow);
+      color: var(--text);
+      padding: 11px 20px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--line);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+        align-items: center;
       }
 
-      .card{
-        padding:30px 24px;
+      .card {
+        padding: 18px;
       }
 
-      .title{
-        font-size:26px;
+      .passage {
+        font-size: 16px;
+        line-height: 1.95;
+        padding: 16px;
       }
 
-      .desc{
-        font-size:16px;
+      .blank {
+        width: 72px;
       }
 
-      .input{
-        height:54px;
-        font-size:16px;
+      .blank input {
+        height: 32px;
+        font-size: 14px;
+        padding: 4px 6px;
       }
 
-      .footer{
-        flex-direction:column;
-        align-items:stretch;
+      .actions {
+        justify-content: stretch;
       }
 
-      .btn,
-      .backBtn{
-        width:100%;
-        font-size:16px;
+      .nextBtn {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="shell">
     <div class="card">
-      <div class="step">Step 1 of 2</div>
-
-      <h1 class="title">What’s your name?</h1>
-
-      <p class="desc">
-        Enter your name before starting the English diagnostic. Your result page will show your name and today’s date.
+      <h1>Listening Fill in the Blanks</h1>
+      <p class="intro">
+        Listen to the recording and type the missing words in each blank.
       </p>
 
-      <div class="inputWrap">
-        <input
-          class="input"
-          type="text"
-          placeholder="Enter your full name"
-        />
+      <div class="audioBox">
+        <button class="playBtn">▶</button>
+        <div class="audioBar">
+          <div class="audioMeta">
+            <span>Audio</span>
+            <span>00:27 / 00:56</span>
+          </div>
+          <div class="bar">
+            <div class="barFill"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="footer">
-        <button class="backBtn" type="button">Back</button>
-        <button class="btn" type="button">Next</button>
+      <div class="passage">
+        Climate researchers have warned that rising sea levels may
+        <span class="blank"><input type="text" /></span>
+        a number of coastal communities over the next century.
+        In response, several governments are investing in
+        <span class="blank"><input type="text" /></span>
+        infrastructure projects designed to reduce long-term environmental risk.
+        However, experts argue that public awareness and
+        <span class="blank"><input type="text" /></span>
+        action remain equally important.
+      </div>
+
+      <div class="actions">
+        <button class="nextBtn">Next</button>
       </div>
     </div>
   </div>
