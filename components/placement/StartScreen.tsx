@@ -23,16 +23,16 @@ export default function StartScreen({ onStart }: StartScreenProps) {
       }}
     >
       <div className={styles.wrapper}>
-        <h1 className={styles.title}>English Level Assessment</h1>
+        <h1 className={styles.title}>英语水平测评</h1>
 
         <div className={styles.subtitle}>
-          Find your current English level and discover what you need to improve.
+          了解你当前的英语基础，并找到接下来最需要提升的方向。
         </div>
 
         <div className={styles.meta}>
-          <div className={styles.metaItem}>Vocabulary Assessment</div>
-          <div className={styles.metaItem}>Reading Comprehension</div>
-          <div className={styles.metaItem}>Listening Recognition</div>
+          <div className={styles.metaItem}>词汇能力测评</div>
+          <div className={styles.metaItem}>阅读理解测评</div>
+          <div className={styles.metaItem}>听力识别测评</div>
         </div>
 
         <button
@@ -40,13 +40,10 @@ export default function StartScreen({ onStart }: StartScreenProps) {
           onClick={onStart}
           style={{ fontFamily: "inherit" }}
         >
-          <span className={styles.ctaMain}>Start Assessment</span>
-          <span className={styles.ctaTime}>~10 min</span>
+          <span className={styles.ctaMain}>开始测评</span>
         </button>
 
-        <div className={styles.note}>
-          This is a quick diagnostic, not a real exam.
-        </div>
+        <div className={styles.note}></div>
       </div>
     </div>
   );

@@ -1,20 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Highlight Incorrect Words</title>
+  <title>ABC Diagnostic Cards Demo</title>
   <style>
     :root {
-      --page-bg: #d8d9de;
-      --panel-bg: #e8e5df;
-      --box-bg: #e3e3e3;
+      --page-bg: #dddddd;
+      --card-bg: #f3f0ea;
+      --border: #111111;
       --text: #111111;
-      --muted: #5f6a78;
-      --line: #111111;
-      --yellow: #f4d54a;
-      --hover: #ddd8c8;
-      --selected: #f4d54a;
+      --muted: #5f6773;
+      --line: #d8d1c7;
+
+      --foundation: #f59e0b;
+      --reading: #3b82f6;
+      --listening: #ef4444;
+
+      --bar-track: #f7f5f1;
+      --bar-a: #69a96f;
+      --bar-b: #eba21a;
+      --bar-c: #e34b3f;
     }
 
     * {
@@ -23,241 +29,342 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
       background: var(--page-bg);
-      font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .topTitle {
+      margin: 0 0 18px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 4px solid var(--border);
+      border-radius: 40px;
+      box-shadow: 14px 14px 0 var(--border);
+      padding: 26px 28px 26px;
+      min-height: 620px;
       display: flex;
+      flex-direction: column;
+    }
+
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      padding: 40px 24px;
+      margin-bottom: 26px;
     }
 
-    .shell {
-      width: 100%;
-      max-width: 1100px;
-      background: var(--panel-bg);
-      border: 3px solid var(--line);
-      border-radius: 28px;
-      box-shadow: 10px 10px 0 var(--line);
-      padding: 34px 34px 28px;
-    }
-
-    .title {
+    .cardTitle {
       margin: 0;
-      font-size: 58px;
-      font-weight: 500;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
     }
 
-    .subtitle {
-      margin: 18px 0 28px;
-      font-size: 22px;
-      line-height: 1.5;
+    .pill {
+      border: 4px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 900;
+      background: #fffdf9;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .score {
+      font-size: 112px;
+      line-height: 0.92;
+      font-weight: 1000;
+      letter-spacing: -0.05em;
+      margin: 4px 0 18px;
+    }
+
+    .score.foundation {
+      color: var(--foundation);
+    }
+
+    .score.reading {
+      color: var(--reading);
+    }
+
+    .score.listening {
+      color: var(--listening);
+    }
+
+    .headline {
+      margin: 0 0 18px;
+      font-size: 26px;
+      line-height: 1.2;
+      font-weight: 1000;
+    }
+
+    .desc {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.7;
       color: var(--muted);
+      min-height: 120px;
     }
 
-    .audioCard,
-    .textCard {
-      background: var(--box-bg);
-      border: 3px solid var(--line);
-      border-radius: 26px;
-      box-shadow: 8px 8px 0 var(--line);
-    }
-
-    .audioCard {
-      padding: 24px 24px 20px;
-      margin-bottom: 28px;
-    }
-
-    .audioNote {
-      font-size: 18px;
-      color: #5c6675;
-      margin-bottom: 18px;
-      line-height: 1.5;
-    }
-
-    .audioInner {
-      background: #dddddd;
+    .divider {
+      height: 4px;
+      background: var(--line);
       border-radius: 999px;
-      padding: 18px 20px;
+      margin: 26px 0 22px;
     }
 
-    audio {
-      width: 100%;
-      display: block;
-    }
-
-    .textCard {
-      padding: 28px 30px;
-    }
-
-    .passage {
-      font-size: 27px;
-      line-height: 1.85;
-      word-break: break-word;
-    }
-
-    .word {
-      display: inline;
-      cursor: pointer;
-      border-radius: 12px;
-      padding: 2px 4px;
-      transition: background 0.15s ease;
-    }
-
-    .word:hover {
-      background: var(--hover);
-    }
-
-    .word.selected {
-      background: var(--selected);
-    }
-
-    .bottomBar {
+    .rows {
       display: flex;
-      justify-content: flex-end;
-      margin-top: 28px;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 20px;
     }
 
-    .nextBtn {
-      border: 3px solid var(--line);
-      background: var(--yellow);
-      color: var(--text);
+    .row {
+      display: grid;
+      grid-template-columns: 50px 1fr 62px;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .tag {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--border);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 1000;
+      background: #fffdf9;
+    }
+
+    .track {
+      height: 22px;
+      width: 100%;
+      border: 4px solid var(--border);
+      background: var(--bar-track);
       border-radius: 999px;
-      padding: 16px 30px;
-      font-size: 22px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 6px 6px 0 var(--line);
+      overflow: hidden;
     }
 
-    .nextBtn:hover {
-      transform: translate(-1px, -1px);
+    .fill {
+      height: 100%;
+      border-radius: 999px;
     }
 
-    .nextBtn:active {
-      transform: translate(3px, 3px);
-      box-shadow: 2px 2px 0 var(--line);
+    .fill.a {
+      background: var(--bar-a);
     }
 
-    @media (max-width: 900px) {
-      .shell {
-        padding: 24px 20px 22px;
-      }
-
-      .title {
-        font-size: 42px;
-      }
-
-      .subtitle {
-        font-size: 18px;
-        margin: 14px 0 22px;
-      }
-
-      .passage {
-        font-size: 22px;
-        line-height: 1.9;
-      }
-
-      .nextBtn {
-        font-size: 18px;
-        padding: 14px 24px;
-      }
+    .fill.b {
+      background: var(--bar-b);
     }
 
-    @media (max-width: 640px) {
-      body {
-        padding: 20px 12px;
+    .fill.c {
+      background: var(--bar-c);
+    }
+
+    .percent {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 1000;
+    }
+
+    .insight {
+      margin-top: auto;
+      padding-top: 14px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #3f4652;
+      border-top: 4px dashed #d7d0c5;
+    }
+
+    .insight strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 1080px) {
+      .grid {
+        grid-template-columns: 1fr;
       }
 
-      .title {
-        font-size: 34px;
+      .card {
+        min-height: auto;
       }
 
-      .subtitle {
-        font-size: 16px;
-      }
-
-      .audioNote {
-        font-size: 15px;
-      }
-
-      .passage {
-        font-size: 18px;
-        line-height: 1.95;
+      .desc {
+        min-height: auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <h1 class="title">Highlight Incorrect Words</h1>
-    <p class="subtitle">
-      Listen to the recording and click on the words in the transcript that are different from what you hear.
-    </p>
+  <div class="page">
+    <div class="wrap">
+      <h1 class="topTitle">ABC 诊断卡片展示（3种不同情况）</h1>
 
-    <div class="audioCard">
-      <div class="audioNote">This audio can only be played 2 times. Remaining: 2</div>
-      <div class="audioInner">
-        <audio controls>
-          <source src="/audio/hiw-demo.mp3" type="audio/mpeg" />
-        </audio>
+      <div class="grid">
+        <!-- Card 1 -->
+        <section class="card">
+          <div class="cardHeader">
+            <h2 class="cardTitle">基础稳定度</h2>
+            <div class="pill">评分指数</div>
+          </div>
+
+          <div class="score foundation">22</div>
+
+          <h3 class="headline">当前基础仍不稳定</h3>
+          <p class="desc">
+            学生在基础词义、常见搭配和基础语法响应上的表现整体偏弱，
+            当前问题首先出现在最底层语言基础上。这个板块不是单点短板，
+            而是整体支撑能力还没有建立起来。
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="rows">
+            <div class="row">
+              <div class="tag">A</div>
+              <div class="track"><div class="fill a" style="width: 33%;"></div></div>
+              <div class="percent">33%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">B</div>
+              <div class="track"><div class="fill b" style="width: 33%;"></div></div>
+              <div class="percent">33%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">C</div>
+              <div class="track"><div class="fill c" style="width: 0%;"></div></div>
+              <div class="percent">0%</div>
+            </div>
+          </div>
+
+          <div class="insight">
+            <strong>判断：</strong>
+            A / B / C 都偏低，说明当前并不是某一个局部题型的问题，而是基础词汇、
+            基础理解和底层规则都还没有形成稳定正确率。建议先补基础，再谈提速和冲分。
+          </div>
+        </section>
+
+        <!-- Card 2 -->
+        <section class="card">
+          <div class="cardHeader">
+            <h2 class="cardTitle">阅读处理</h2>
+            <div class="pill">评分指数</div>
+          </div>
+
+          <div class="score reading">48</div>
+
+          <h3 class="headline">中段阅读处理受阻</h3>
+          <p class="desc">
+            学生能够处理基础句意与简单信息定位，但一进入段落关系、
+            信息整合和排序判断后，正确率明显下降。说明阅读能力并非完全没有，
+            而是还停留在较基础层面。
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="rows">
+            <div class="row">
+              <div class="tag">A</div>
+              <div class="track"><div class="fill a" style="width: 100%;"></div></div>
+              <div class="percent">100%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">B</div>
+              <div class="track"><div class="fill b" style="width: 50%;"></div></div>
+              <div class="percent">50%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">C</div>
+              <div class="track"><div class="fill c" style="width: 0%;"></div></div>
+              <div class="percent">0%</div>
+            </div>
+          </div>
+
+          <div class="insight">
+            <strong>判断：</strong>
+            A 高、B 下滑、C 明显偏低，说明学生已经具备基础阅读能力，
+            但一旦题目进入更复杂的逻辑关系和结构处理，稳定性就会下降。
+            建议重点加强段落逻辑、排序和信息整合训练。
+          </div>
+        </section>
+
+        <!-- Card 3 -->
+        <section class="card">
+          <div class="cardHeader">
+            <h2 class="cardTitle">听力识别</h2>
+            <div class="pill">评分指数</div>
+          </div>
+
+          <div class="score listening">67</div>
+
+          <h3 class="headline">高阶听辨仍是短板</h3>
+          <p class="desc">
+            学生在基础听辨和中段信息捕捉上已经具备一定稳定度，
+            但在复杂信息、细节听辨和高压条件下的实时处理能力仍不足。
+            当前短板更多集中在高阶层，而不是基础层。
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="rows">
+            <div class="row">
+              <div class="tag">A</div>
+              <div class="track"><div class="fill a" style="width: 100%;"></div></div>
+              <div class="percent">100%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">B</div>
+              <div class="track"><div class="fill b" style="width: 75%;"></div></div>
+              <div class="percent">75%</div>
+            </div>
+
+            <div class="row">
+              <div class="tag">C</div>
+              <div class="track"><div class="fill c" style="width: 33%;"></div></div>
+              <div class="percent">33%</div>
+            </div>
+          </div>
+
+          <div class="insight">
+            <strong>判断：</strong>
+            A / B 表现稳定，但 C 明显偏低，说明学生基础听辨能力已经建立，
+            当前主要问题在复杂语流、细节抓取和高阶听力条件下的稳定输出。
+            建议重点加强高阶听辨与信息捕捉训练。
+          </div>
+        </section>
       </div>
     </div>
-
-    <div class="textCard">
-      <div class="passage" id="passage"></div>
-    </div>
-
-    <div class="bottomBar">
-      <button class="nextBtn" id="nextBtn">Next</button>
-    </div>
   </div>
-
-  <script>
-    const transcript = `In modern education, students are often encouraged to work technology in groups, because collaborative learning can improve communication skills and help them solve problems more carefully. However, teachers must still ensure that each student is assessed effectively and given opportunities to think independently.`;
-
-    const passage = document.getElementById("passage");
-    const nextBtn = document.getElementById("nextBtn");
-    const selected = new Set();
-
-    function renderPassage() {
-      passage.innerHTML = "";
-      const words = transcript.split(" ");
-
-      words.forEach((word, index) => {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.textContent = word;
-
-        if (selected.has(index)) {
-          span.classList.add("selected");
-        }
-
-        span.addEventListener("click", () => {
-          if (selected.has(index)) {
-            selected.delete(index);
-          } else {
-            selected.add(index);
-          }
-          renderPassage();
-        });
-
-        passage.appendChild(span);
-
-        if (index !== words.length - 1) {
-          passage.appendChild(document.createTextNode(" "));
-        }
-      });
-    }
-
-    nextBtn.addEventListener("click", () => {
-      alert("Next question");
-    });
-
-    renderPassage();
-  </script>
 </body>
 </html>

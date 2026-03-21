@@ -19,9 +19,16 @@ export default function PreTestIntro({ onComplete }: PreTestIntroProps) {
   const [targetScore, setTargetScore] = useState("");
   const [selectedExam, setSelectedExam] = useState<考试类型>("");
 
+  const parsedTargetScore = Number(targetScore);
+  const isTargetScoreValid =
+    targetScore.trim() !== "" &&
+    !Number.isNaN(parsedTargetScore) &&
+    parsedTargetScore >= 30 &&
+    parsedTargetScore <= 90;
+
   const handleNext = () => {
     if (step === 1 && !studentName.trim()) return;
-    if (step === 2 && !targetScore.trim()) return;
+    if (step === 2 && !isTargetScoreValid) return;
     if (step < 3) setStep(step + 1);
   };
 
@@ -35,12 +42,12 @@ export default function PreTestIntro({ onComplete }: PreTestIntroProps) {
 
   const handleStart = () => {
     if (!studentName.trim()) return;
-    if (!targetScore.trim()) return;
+    if (!isTargetScoreValid) return;
     if (!selectedExam) return;
 
     onComplete({
       studentName: studentName.trim(),
-      targetScore: targetScore.trim(),
+      targetScore: String(parsedTargetScore),
       selectedExam,
     });
   };
@@ -56,7 +63,7 @@ export default function PreTestIntro({ onComplete }: PreTestIntroProps) {
       return "开始测试前，请先填写姓名。结果页会显示你的姓名和当天日期。";
     }
     if (step === 2) {
-      return "请输入你的目标分数，方便后续更清楚地展示你的测评结果。";
+      return "请输入你的目标分数，分数范围为 30 到 90 分。";
     }
     return "请选择你要参加的考试类型，系统会根据你的选择进入对应流程。";
   };
@@ -91,11 +98,18 @@ export default function PreTestIntro({ onComplete }: PreTestIntroProps) {
             <div className={styles.inputWrap}>
               <input
                 className={styles.input}
-                type="text"
-                placeholder="例如：50 / 58 / 65 / 79"
+                type="number"
+                min={30}
+                max={90}
+                placeholder="请输入 30 - 90 之间的分数"
                 value={targetScore}
                 onChange={(e) => setTargetScore(e.target.value)}
               />
+              {targetScore.trim() !== "" && !isTargetScoreValid && (
+                <p className={styles.errorText}>
+                  目标分数必须填写在 30 到 90 之间
+                </p>
+              )}
             </div>
           )}
 

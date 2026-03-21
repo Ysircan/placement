@@ -168,31 +168,116 @@
   color: var(--orange) !important;
 }
 
-.pathList {
+.courseCard {
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 6px 6px 0 var(--line);
+  padding: 18px;
+  color: var(--text);
+}
+
+.courseD {
+  background: linear-gradient(135deg, #fff4d6 0%, #ffe3b3 100%);
+  border: 2px solid #111111;
+}
+
+.courseA {
+  background: linear-gradient(180deg, #fff0b0 0%, #fff9ea 100%);
+}
+
+.courseB {
+  background: linear-gradient(180deg, #d9e5ff 0%, #f3f7ff 100%);
+}
+
+.courseC {
+  background: linear-gradient(180deg, #d8ead9 0%, #f2faf2 100%);
+}
+
+.courseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.courseHeaderMain {
+  min-width: 0;
+}
+
+.courseName {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--text);
+}
+
+.courseMeta {
+  flex-shrink: 0;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.courseSubtitle {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+.courseDivider {
+  height: 3px;
+  background: var(--line);
+  border-radius: 999px;
+  margin: 16px 0;
+  opacity: 0.14;
+}
+
+.courseSection {
+  display: grid;
+  gap: 8px;
+}
+
+.courseSection + .courseSection {
+  margin-top: 16px;
+}
+
+.courseSectionLabel {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.courseText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(17, 17, 17, 0.76);
+}
+
+.courseFeatures {
   display: grid;
   gap: 10px;
 }
 
-.pathStep {
+.courseFeature {
   border: 2px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
   padding: 12px 14px;
-  color: var(--text);
-}
-
-.pathStep strong {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-
-.pathStep span {
-  display: block;
   font-size: 13px;
-  color: var(--muted);
-  line-height: 1.4;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text);
 }
 
 .ctaWrap {
@@ -249,6 +334,16 @@
   box-shadow: 8px 8px 0 var(--line);
   padding: 24px 26px;
   margin-bottom: 18px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.heroHighlightText {
+  min-width: 0;
 }
 
 .heroHighlightKicker {
@@ -257,19 +352,23 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.78;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: var(--green-text);
 }
 
 .heroHighlightSub {
   font-size: 18px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  line-height: 1.2;
+  max-width: 720px;
   color: var(--green-text);
 }
 
 .heroHighlightValue {
-  font-size: clamp(62px, 10vw, 108px);
+  justify-self: end;
+  white-space: nowrap;
+  font-size: clamp(84px, 11vw, 180px);
   line-height: 0.9;
   font-weight: 900;
   letter-spacing: -0.06em;
@@ -438,29 +537,6 @@
   gap: 22px;
 }
 
-.summaryCard {
-  background: var(--card);
-  border: 3px solid var(--line);
-  border-radius: 26px;
-  box-shadow: 8px 8px 0 var(--line);
-  padding: 20px;
-  color: var(--text);
-}
-
-.summaryCard h3 {
-  margin: 0 0 10px;
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  color: var(--text);
-}
-
-.summaryCard p {
-  margin: 0;
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.65;
-}
 
 @media (max-width: 1180px) {
   .main {
@@ -509,14 +585,23 @@
     padding: 18px;
   }
 
+  .courseHeader {
+    flex-direction: column;
+  }
+
   .metricNumber {
     font-size: 68px;
   }
 
-  .heroHighlight {
-    padding: 20px;
-  }
+.heroHighlight {
+  padding: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
 
+.heroHighlightValue {
+  justify-self: start;
+}
   .heroText h1 {
     white-space: normal;
   }
@@ -535,13 +620,24 @@
 
   .panelCard,
   .metricCard,
-  .summaryCard,
   .heroHighlight {
     border-radius: 20px;
   }
 
   .scoreBox {
     font-size: 22px;
+  }
+
+  .courseCard {
+    padding: 16px;
+  }
+
+  .courseName {
+    font-size: 22px;
+  }
+
+  .courseFeature {
+    padding: 10px 12px;
   }
 
   .metricStatus {
@@ -562,3 +658,67 @@
     padding: 9px 12px;
   }
 }
+.sidebar .panelCard {
+  box-shadow: 5px 5px 0 var(--line);
+}
+
+.sidebar .courseCard {
+  box-shadow: none;
+}
+
+.sidebar .cta {
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+.sidebar .cta:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 3px 3px 0 var(--line);
+}
+.mainCtaCard {
+  border: 3px solid var(--line);
+  border-radius: 28px;
+  background: #f4d44d;
+  box-shadow: 8px 8px 0 var(--line);
+  padding: 28px 28px 30px;
+  margin-bottom: 22px;
+}
+
+.mainCtaKicker {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
+.mainCtaTitle {
+  font-size: clamp(34px, 4.2vw, 54px);
+  line-height: 1;
+  font-weight: 900;
+  color: #111111;
+  margin-bottom: 14px;
+}
+
+.mainCtaText {
+  font-size: 20px;
+  line-height: 1.55;
+  color: #2f3747;
+  max-width: 760px;
+  margin-bottom: 24px;
+}
+
+.mainCtaButton {
+  appearance: none;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  box-shadow: 5px 5px 0 var(--line);
+  padding: 16px 28px;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+

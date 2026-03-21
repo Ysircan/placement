@@ -20,27 +20,11 @@ export default function QuestionScreen({
   onSelect,
   onNext,
 }: QuestionScreenProps) {
-  const storageKey = `placement_vocab_answer_${questionNumber}`;
-
   const [selected, setSelected] = useState<string | null>(null);
 
-  /* 读取保存的答案 */
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-
-    if (saved) {
-      setSelected(saved);
-    } else {
-      setSelected(null);
-    }
-  }, [storageKey]);
-
-  /* 保存答案 */
-  useEffect(() => {
-    if (selected) {
-      localStorage.setItem(storageKey, selected);
-    }
-  }, [selected, storageKey]);
+    setSelected(null);
+  }, [questionNumber, question]);
 
   const progressPercent = (questionNumber / totalQuestions) * 100;
 
