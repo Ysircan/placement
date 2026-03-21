@@ -26,10 +26,8 @@ type Step =
   | "vocabQuestion"
   | "readingIntro"
   | "readingQuestion"
-  | "readingSingleQuestion"
   | "readingReorderQuestion"
-  | "readingFinalQuestion"
-  | "readingFinalReorderQuestion"
+  | "readingSingleQuestion"
   | "listeningIntro"
   | "listeningQuestion"
   | "hiwQuestion"
@@ -56,7 +54,7 @@ type ListeningStats = {
 };
 
 type SavedProgress = {
-  step: Step;
+  step: Step | "readingFinalQuestion" | "readingFinalReorderQuestion";
   vocabIndex: number;
   readingPassageIndex: number;
   readingSingleIndex: number;
@@ -147,31 +145,18 @@ export default function PlacementPage() {
     wfdItems: [],
   };
 
-  const regularReadingPassages = activeQuestions.readingPassages.filter(
-    (p) => p.id !== "reading-c-1"
-  );
-
-  const finalReadingPassage =
-    activeQuestions.readingPassages.find((p) => p.id === "reading-c-1") ?? null;
-
-  const regularReadingReorders = activeQuestions.readingReorder.filter(
-    (q) => q.id !== "reading-reorder-c-1"
-  );
-
-  const finalReadingReorder =
-    activeQuestions.readingReorder.find(
-      (q) => q.id === "reading-reorder-c-1"
-    ) ?? null;
+  const readingPassages = activeQuestions.readingPassages ?? [];
+  const readingReorders = activeQuestions.readingReorder ?? [];
+  const readingSingleChoices = activeQuestions.readingSingleChoice ?? [];
 
   const listeningFillBlankItems = listeningData.listeningFillBlanks ?? [];
   const hiwItems = listeningData.hiwItems ?? [];
   const wfdItems = listeningData.wfdItems ?? [];
 
   const currentQuestion = activeQuestions.vocabulary[vocabIndex];
-  const currentReadingPassage = regularReadingPassages[readingPassageIndex];
-  const currentReadingSingle =
-    activeQuestions.readingSingleChoice[readingSingleIndex];
-  const currentReadingReorder = regularReadingReorders[readingReorderIndex];
+  const currentReadingPassage = readingPassages[readingPassageIndex];
+  const currentReadingSingle = readingSingleChoices[readingSingleIndex];
+  const currentReadingReorder = readingReorders[readingReorderIndex];
   const currentListeningFillBlank =
     listeningFillBlankItems[listeningFillBlankIndex] ?? null;
   const currentHiw = hiwItems[hiwIndex] ?? null;
@@ -180,12 +165,9 @@ export default function PlacementPage() {
   const totalQuestions = useMemo(() => {
     return (
       activeQuestions.vocabulary.length +
-      activeQuestions.readingPassages.reduce(
-        (sum, passage) => sum + passage.blanks.length,
-        0
-      ) +
-      activeQuestions.readingSingleChoice.length +
-      activeQuestions.readingReorder.length +
+      readingPassages.reduce((sum, passage) => sum + passage.blanks.length, 0) +
+      readingSingleChoices.length +
+      readingReorders.length +
       listeningFillBlankItems.reduce(
         (sum, item) => sum + item.blanks.length,
         0
@@ -193,7 +175,15 @@ export default function PlacementPage() {
       hiwItems.length +
       wfdItems.length
     );
-  }, [activeQuestions, listeningFillBlankItems, hiwItems, wfdItems]);
+  }, [
+    activeQuestions,
+    readingPassages,
+    readingSingleChoices,
+    readingReorders,
+    listeningFillBlankItems,
+    hiwItems,
+    wfdItems,
+  ]);
 
   const rawScoreResult = useMemo(() => {
     const vocabulary = sumSectionStats(difficultyStats);
@@ -216,12 +206,34 @@ export default function PlacementPage() {
       if (!saved) return;
 
       const parsed = JSON.parse(saved) as SavedProgress;
+      const restoredQuestions =
+        parsed.selectedExam === "full" ? fullQuestions : quickQuestions;
 
-      setStep(parsed.step ?? "start");
+      let normalizedStep: Step = parsed.step as Step;
+      let normalizedReadingPassageIndex = parsed.readingPassageIndex ?? 0;
+      let normalizedReadingReorderIndex = parsed.readingReorderIndex ?? 0;
+
+      if (parsed.step === "readingFinalQuestion") {
+        normalizedStep = "readingQuestion";
+        normalizedReadingPassageIndex = Math.max(
+          0,
+          (restoredQuestions.readingPassages?.length ?? 1) - 1
+        );
+      }
+
+      if (parsed.step === "readingFinalReorderQuestion") {
+        normalizedStep = "readingReorderQuestion";
+        normalizedReadingReorderIndex = Math.max(
+          0,
+          (restoredQuestions.readingReorder?.length ?? 1) - 1
+        );
+      }
+
+      setStep(normalizedStep ?? "start");
       setVocabIndex(parsed.vocabIndex ?? 0);
-      setReadingPassageIndex(parsed.readingPassageIndex ?? 0);
+      setReadingPassageIndex(normalizedReadingPassageIndex);
       setReadingSingleIndex(parsed.readingSingleIndex ?? 0);
-      setReadingReorderIndex(parsed.readingReorderIndex ?? 0);
+      setReadingReorderIndex(normalizedReadingReorderIndex);
       setListeningFillBlankIndex(parsed.listeningFillBlankIndex ?? 0);
       setHiwIndex(parsed.hiwIndex ?? 0);
       setWfdIndex(parsed.wfdIndex ?? 0);
@@ -323,7 +335,7 @@ export default function PlacementPage() {
   };
 
   const handleReadingNext = (answers: Record<number, string>) => {
-    const passage = regularReadingPassages[readingPassageIndex];
+    const passage = readingPassages[readingPassageIndex];
     if (!passage) return;
 
     let addedScore = 0;
@@ -366,72 +378,20 @@ export default function PlacementPage() {
       setScore((prev) => prev + addedScore);
     }
 
-    if (readingPassageIndex + 1 < regularReadingPassages.length) {
-      setReadingPassageIndex((prev) => prev + 1);
+    const next = readingPassageIndex + 1;
+
+    if (next < readingPassages.length) {
+      setReadingPassageIndex(next);
       return;
     }
 
-    if (activeQuestions.readingSingleChoice.length > 0) {
+    if (readingReorders.length > 0) {
+      setStep("readingReorderQuestion");
+      return;
+    }
+
+    if (readingSingleChoices.length > 0) {
       setStep("readingSingleQuestion");
-      return;
-    }
-
-    if (regularReadingReorders.length > 0) {
-      setStep("readingReorderQuestion");
-      return;
-    }
-
-    if (finalReadingPassage) {
-      setStep("readingFinalQuestion");
-      return;
-    }
-
-    if (finalReadingReorder) {
-      setStep("readingFinalReorderQuestion");
-      return;
-    }
-
-    setStep("listeningIntro");
-  };
-
-  const handleReadingSingleNext = (selectedIds: string[]) => {
-    if (!currentReadingSingle) return;
-
-    const selectedId = selectedIds[0] ?? "";
-    const correct = selectedId === currentReadingSingle.correctOptionId;
-    const difficulty = currentReadingSingle.difficulty;
-
-    setReadingStats((prev) => ({
-      ...prev,
-      [difficulty]: {
-        correct: prev[difficulty].correct + (correct ? 1 : 0),
-        total: prev[difficulty].total + 1,
-      },
-    }));
-
-    if (correct) {
-      setScore((prev) => prev + 1);
-    }
-
-    const next = readingSingleIndex + 1;
-
-    if (next < activeQuestions.readingSingleChoice.length) {
-      setReadingSingleIndex(next);
-      return;
-    }
-
-    if (regularReadingReorders.length > 0) {
-      setStep("readingReorderQuestion");
-      return;
-    }
-
-    if (finalReadingPassage) {
-      setStep("readingFinalQuestion");
-      return;
-    }
-
-    if (finalReadingReorder) {
-      setStep("readingFinalReorderQuestion");
       return;
     }
 
@@ -461,95 +421,43 @@ export default function PlacementPage() {
 
     const next = readingReorderIndex + 1;
 
-    if (next < regularReadingReorders.length) {
+    if (next < readingReorders.length) {
       setReadingReorderIndex(next);
       return;
     }
 
-    if (finalReadingPassage) {
-      setStep("readingFinalQuestion");
-      return;
-    }
-
-    if (finalReadingReorder) {
-      setStep("readingFinalReorderQuestion");
+    if (readingSingleChoices.length > 0) {
+      setStep("readingSingleQuestion");
       return;
     }
 
     setStep("listeningIntro");
   };
 
-  const handleFinalReadingNext = (answers: Record<number, string>) => {
-    const passage = finalReadingPassage;
-    if (!passage) return;
+  const handleReadingSingleNext = (selectedIds: string[]) => {
+    if (!currentReadingSingle) return;
 
-    let addedScore = 0;
-
-    const delta: ReadingStats = {
-      A: { correct: 0, total: 0 },
-      B: { correct: 0, total: 0 },
-      C: { correct: 0, total: 0 },
-    };
-
-    passage.blanks.forEach((blank) => {
-      const difficulty = blank.difficulty as "A" | "B" | "C";
-      const userAnswer = answers[blank.blankNumber];
-      const correct = userAnswer === blank.correctOption;
-
-      delta[difficulty].total += 1;
-
-      if (correct) {
-        delta[difficulty].correct += 1;
-        addedScore += 1;
-      }
-    });
-
-    setReadingStats((prev) => ({
-      A: {
-        correct: prev.A.correct + delta.A.correct,
-        total: prev.A.total + delta.A.total,
-      },
-      B: {
-        correct: prev.B.correct + delta.B.correct,
-        total: prev.B.total + delta.B.total,
-      },
-      C: {
-        correct: prev.C.correct + delta.C.correct,
-        total: prev.C.total + delta.C.total,
-      },
-    }));
-
-    if (addedScore > 0) {
-      setScore((prev) => prev + addedScore);
-    }
-
-    if (finalReadingReorder) {
-      setStep("readingFinalReorderQuestion");
-      return;
-    }
-
-    setStep("listeningIntro");
-  };
-
-  const handleFinalReadingReorderNext = (payload: {
-    questionId: string;
-    studentOrder: string[];
-    isCorrect: boolean;
-  }) => {
-    if (!finalReadingReorder) return;
-
-    const difficulty = finalReadingReorder.difficulty as "A" | "B" | "C";
+    const selectedId = selectedIds[0] ?? "";
+    const correct = selectedId === currentReadingSingle.correctOptionId;
+    const difficulty = currentReadingSingle.difficulty;
 
     setReadingStats((prev) => ({
       ...prev,
       [difficulty]: {
-        correct: prev[difficulty].correct + (payload.isCorrect ? 1 : 0),
+        correct: prev[difficulty].correct + (correct ? 1 : 0),
         total: prev[difficulty].total + 1,
       },
     }));
 
-    if (payload.isCorrect) {
+    if (correct) {
       setScore((prev) => prev + 1);
+    }
+
+    const next = readingSingleIndex + 1;
+
+    if (next < readingSingleChoices.length) {
+      setReadingSingleIndex(next);
+      return;
     }
 
     setStep("listeningIntro");
@@ -806,8 +714,18 @@ export default function PlacementPage() {
           passage={currentReadingPassage.body}
           blanks={currentReadingPassage.blanks}
           passageIndex={readingPassageIndex}
-          totalPassages={regularReadingPassages.length}
+          totalPassages={readingPassages.length}
           onNext={handleReadingNext}
+        />
+      )}
+
+      {step === "readingReorderQuestion" && currentReadingReorder && (
+        <ReadingReorderScreen
+          key={currentReadingReorder.id}
+          question={currentReadingReorder}
+          questionNumber={readingReorderIndex + 1}
+          totalQuestions={readingReorders.length}
+          onNext={handleReadingReorderNext}
         />
       )}
 
@@ -818,40 +736,9 @@ export default function PlacementPage() {
           question={currentReadingSingle.prompt}
           options={currentReadingSingle.options}
           questionNumber={readingSingleIndex + 1}
-          totalQuestions={activeQuestions.readingSingleChoice.length}
+          totalQuestions={readingSingleChoices.length}
           mode="single"
           onNext={handleReadingSingleNext}
-        />
-      )}
-
-      {step === "readingReorderQuestion" && currentReadingReorder && (
-        <ReadingReorderScreen
-          key={currentReadingReorder.id}
-          question={currentReadingReorder}
-          questionNumber={readingReorderIndex + 1}
-          totalQuestions={regularReadingReorders.length}
-          onNext={handleReadingReorderNext}
-        />
-      )}
-
-      {step === "readingFinalQuestion" && finalReadingPassage && (
-        <ReadingScreen
-          key={finalReadingPassage.id}
-          passage={finalReadingPassage.body}
-          blanks={finalReadingPassage.blanks}
-          passageIndex={regularReadingPassages.length}
-          totalPassages={regularReadingPassages.length + 1}
-          onNext={handleFinalReadingNext}
-        />
-      )}
-
-      {step === "readingFinalReorderQuestion" && finalReadingReorder && (
-        <ReadingReorderScreen
-          key={finalReadingReorder.id}
-          question={finalReadingReorder}
-          questionNumber={regularReadingReorders.length + 1}
-          totalQuestions={regularReadingReorders.length + 1}
-          onNext={handleFinalReadingReorderNext}
         />
       )}
 
