@@ -332,17 +332,21 @@
   background: var(--green-bg);
   color: var(--green-text);
   box-shadow: 8px 8px 0 var(--line);
-  padding: 24px 26px;
+  padding: 34px 32px;
   margin-bottom: 18px;
+  min-height: 230px;
 
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: space-between;
+  gap: 28px;
   width: 100%;
 }
 
+
 .heroHighlightText {
+  flex: 0 0 240px;
+  max-width: 240px;
   min-width: 0;
 }
 
@@ -352,29 +356,30 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.78;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  line-height: 1.25;
   color: var(--green-text);
 }
 
 .heroHighlightSub {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   margin-bottom: 0;
-  line-height: 1.2;
-  max-width: 720px;
+  line-height: 1.4;
   color: var(--green-text);
 }
 
 .heroHighlightValue {
-  justify-self: end;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
   white-space: nowrap;
-  font-size: clamp(84px, 11vw, 180px);
-  line-height: 0.9;
+  font-size: clamp(72px, 8vw, 150px);
+  line-height: 1; /* 原来是 0.92 */
   font-weight: 900;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.05em;
   color: var(--green-text);
 }
-
 .heroText h1 {
   margin: 0 0 8px;
   font-size: clamp(24px, 3.2vw, 36px);

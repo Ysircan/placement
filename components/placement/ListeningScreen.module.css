@@ -86,6 +86,16 @@
   display: block;
 }
 
+.container audio::-webkit-media-controls-timeline,
+.container audio::-webkit-media-controls-timeline-container {
+  display: none;
+}
+
+.container audio::-webkit-media-controls-current-time-display,
+.container audio::-webkit-media-controls-time-remaining-display {
+  display: none;
+}
+
 .audioHint {
   margin-top: 10px;
   font-size: 14px;
