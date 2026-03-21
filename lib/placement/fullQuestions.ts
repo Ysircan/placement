@@ -466,7 +466,97 @@ To be honest, the biggest problem for most undergraduate students, in terms of a
   ],
 }
   ],
-  hiwItems: [],
-  wfdItems: [],
+  hiwItems: [
+  {
+    id: "hiw-a-1",
+    type: "hiw",
+    difficulty: "B",
+    prompt:
+      "Listen to the recording and click on the words that are different from the recording.",
+    audioUrl: "/audio/HIW1.mp3",
+    transcript: `
+For some people, this presentation may seem far-fetched, but ending poverty is both ethically necessary and actually feasible. All of us must play a role in making it happen. All human beings want, and have a way to live in dignity, to determine our own destinies, and to be respected by other, by other people. Despite the universality of three rights, our capacities to fulfill them vary enormously, and no divining line is more profound in influencing the quality of our lives than the gulf between poverty and prosperity.
+`,
+    wrongWords: [
+      "presentation",
+      "ethically",
+      "way",
+      "three",
+      "divining",
+    ],
+  },
+  {
+  id: "hiw-a-2",
+  type: "hiw",
+  difficulty: "C",
+  prompt:
+    "Listen to the recording and click on the words that are different from the recording.",
+  audioUrl: "/audio/HIW2.mp3",
+  transcript: `
+The idea is that we divide the ward – the patients if you like – and the nurses into three different teams, which we call lively nursing teams. And in those teams we then have the primary nurse which is myself, associate nurses which might tend to be D grade nurses, and health care officials, and you're all in one team together. The idea is that you would hopefully work as a team in co-ordinating the care for the patients who come in under your care as in the red team. In our teams we have eight patients each. The idea would be that I would always prescribe the care or plan the care, for those patients. In reality, it doesn't always work like that and besides which the associate nurses that are in the teams have those skills anyway from their upgrading.
+`,
+  wrongWords: [
+    "lively",
+    "might",
+    "officials",
+    "always",
+    "upgrading",
+  ],
+},
+{
+  id: "hiw-a-3",
+  type: "hiw",
+  difficulty: "A",
+  prompt:
+    "Listen to the recording and click on the words that are different from the recording.",
+  audioUrl: "/audio/HIW3.mp3",
+  transcript: `
+French, on the other hand, is a highly gentrified language, with the Parisian accent setting the standard for the world. If other French-speaking political abilities had risen to rival France, the situation might be dissident. If for instance, Quebec had remained a separate entity, or if Haiti had been a larger country, then perhaps other French dialects might have become more accepted.
+`,
+  wrongWords: [
+    "gentrified",
+    "abilities",
+    "dissident",
+    "entity",
+  ],
+},
+],
+  wfdItems: [{
+  id: "wfdA1",
+  type: "wfd",
+  difficulty: "A",
+  prompt: "Type the sentence exactly as dictated.",
+  transcript: "A group meeting will be held by tomorrow in the library conference room",
+  expectedText: "A group meeting will be held by tomorrow in the library conference room",
+  audioUrl: "/audio/001.mp3",
+},
+{
+  id: "wfdA2",
+  type: "wfd",
+  difficulty: "A",
+  prompt: "Type the sentence exactly as dictated.",
+  transcript: "You can make an appointment to meet the librarian",
+  expectedText: "You can make an appointment to meet the librarian",
+  audioUrl: "/audio/005.mp3",
+},
+{
+  id: "wfdB1",
+  type: "wfd",
+  difficulty: "B",
+  prompt: "Type the sentence exactly as dictated.",
+  transcript: "We encourage students to complete their applications before the deadline",
+  expectedText: "We encourage students to complete their applications before the deadline",
+  audioUrl: "/audio/174.mp3",
+},
+{
+  id: "wfdC1",
+  type: "wfd",
+  difficulty: "C",
+  prompt: "Type the sentence exactly as dictated.",
+  transcript: "While some people regard it as reforming zeal, others regard it as recklessness",
+  expectedText: "While some people regard it as reforming zeal, others regard it as recklessness",
+  audioUrl: "/audio/171.mp3",
+}
+],
 }
 };

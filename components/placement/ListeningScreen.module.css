@@ -1,252 +1,190 @@
-:root{
-  --yellow:#ffd43b;
-  --border:#111;
-  --bg:#f3f4f6;
-  --card:#ffffff;
+:root {
+  --yellow: #ffd84d;
+  --border: #111111;
+  --page: #eef0f4;
+  --card: #fffdf7;
+  --panel: #ffffff;
+  --input: #fffdf4;
+  --input-focus: #fff6c9;
+  --muted: #666666;
+  --hint: #64748b;
 }
 
-/* ======================= */
-/* layout */
-/* ======================= */
-
-.wrapper{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  background:var(--bg);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:40px 20px;
-  color:#111;
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 14px;
+  background: var(--page);
 }
 
-.container{
-  width:100%;
-  max-width:720px;
+.container {
+  width: 100%;
+  max-width: 760px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  box-shadow: 5px 5px 0 var(--border);
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 /* ======================= */
 /* header */
 /* ======================= */
 
-.header{
-  text-align:center;
-  margin-bottom:24px;
+.header {
+  margin-bottom: 18px;
 }
 
-.title{
-  font-size:26px;
-  font-weight:700;
-  margin-bottom:6px;
+.title {
+  margin: 0 0 8px;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--border);
 }
 
-.subtitle{
-  color:#6b7280;
-  font-size:16px;
-}
-
-/* ======================= */
-/* question */
-/* ======================= */
-
-.question{
-  font-size:26px;
-  font-weight:600;
-  margin-bottom:28px;
-  text-align:center;
+.subtitle {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
 /* ======================= */
-/* options area */
+/* inner block */
 /* ======================= */
 
-.options{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
+.blankBlock {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-/* play button */
-
-.option{
-
-  width:260px;
-
-  background:white;
-  padding:12px 18px;
-
-  border:2px solid var(--border);
-  border-radius:14px;
-
-  font-size:15px;
-  text-align:center;
-
-  cursor:pointer;
-
-  box-shadow:0 0 0 var(--border);
-
-  transition:
-  transform .12s ease,
-  box-shadow .12s ease,
-  background .12s ease;
-}
-
-.option:hover{
-  transform:translate(-1px,-1px);
-  box-shadow:2px 2px 0 var(--border);
-  background:#fffdf4;
+.blankTitle {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 700;
+  color: var(--border);
 }
 
 /* ======================= */
-/* listening input */
+/* audio */
 /* ======================= */
 
-.answerInput{
-
-  width:100%;
-  max-width:420px;
-
-  padding:14px 16px;
-
-  border:2px solid var(--border);
-  border-radius:14px;
-
-  font-size:16px;
-
-  outline:none;
-
-  box-shadow:0 0 0 var(--border);
-
-  transition:
-  transform .12s ease,
-  box-shadow .12s ease;
+.audioArea {
+  margin-top: 16px;
 }
 
-.answerInput:focus{
+.audioPlayer {
+  width: 100%;
+  display: block;
+}
 
-  transform:translate(-2px,-2px);
-  box-shadow:4px 4px 0 var(--border);
-
+.audioHint {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hint);
 }
 
 /* ======================= */
-/* CTA */
+/* textarea */
 /* ======================= */
 
-.ctaArea{
-  display:flex;
-  justify-content:center;
-  margin-top:40px;
+.listenTextarea {
+  width: 100%;
+  min-height: 120px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--input);
+  color: var(--border);
+  font-size: 16px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
 }
 
-.nextBtn{
-  background:var(--yellow);
-  border:2px solid var(--border);
-  padding:14px 36px;
-  font-size:17px;
-  font-weight:600;
-  border-radius:14px;
-  cursor:pointer;
-  box-shadow:5px 5px 0 var(--border);
-  transition:all .15s ease;
-}
-
-.nextBtn:hover{
-  transform:translate(-2px,-2px);
-  box-shadow:7px 7px 0 var(--border);
-}
-/* ======================= */
-/* listening audio */
-/* ======================= */
-
-.audioArea{
-  margin-top:16px;
-}
-
-.audioPlayer{
-  width:100%;
-}
-
-.audioHint{
-  margin-top:10px;
-  font-size:14px;
-  color:#64748b;
+.listenTextarea:focus {
+  background: var(--input-focus);
 }
 
 /* ======================= */
-/* listening textarea */
+/* actions */
 /* ======================= */
 
-.listenTextarea{
-
-  margin-top:18px;
-
-  width:100%;
-  min-height:120px;
-
-  border:2px solid var(--border);
-  border-radius:14px;
-
-  padding:14px;
-
-  font-size:16px;
-
-  resize:none;
-
-  outline:none;
-
-  box-shadow:0 0 0 var(--border);
-
-  transition:
-  transform .12s ease,
-  box-shadow .12s ease;
-
+.ctaArea {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
 }
 
-.listenTextarea:focus{
+.nextBtn {
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--border);
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--border);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
 
-  transform:translate(-2px,-2px);
-  box-shadow:4px 4px 0 var(--border);
+.nextBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--border);
+}
 
+.nextBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--border);
 }
 
 /* ======================= */
 /* mobile */
 /* ======================= */
 
-@media (max-width:640px){
-
-  .wrapper{
-    padding:24px 16px;
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 16px;
   }
 
-  .title{
-    font-size:22px;
+  .container {
+    padding: 18px;
+    border-radius: 18px;
   }
 
-  .subtitle{
-    font-size:14px;
+  .blankBlock {
+    padding: 16px;
+    border-radius: 16px;
   }
 
-  .question{
-    font-size:20px;
+  .blankTitle {
+    font-size: 16px;
   }
 
-  .option{
-    width:100%;
-    max-width:280px;
+  .listenTextarea {
+    min-height: 110px;
+    font-size: 15px;
   }
 
-  .answerInput{
-    width:100%;
-    max-width:320px;
+  .ctaArea {
+    justify-content: stretch;
   }
 
-  .nextBtn{
-    padding:14px 28px;
-    font-size:16px;
+  .nextBtn {
+    width: 100%;
   }
-
 }

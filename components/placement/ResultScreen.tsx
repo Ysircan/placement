@@ -5,14 +5,12 @@ import type { ResultScreenProps } from "@/lib/types/resultTypes";
 
 export default function ResultScreen({
   score,
-  total,
   difficultyStats,
   readingStats,
   listeningStats,
   studentName,
   targetScore,
   testDate,
-  selectedExam,
   onRestart,
 }: ResultScreenProps) {
   const toPercent = (correct: number, totalCount: number) => {
@@ -59,14 +57,93 @@ export default function ResultScreen({
     (listeningA + listeningB + listeningC) / 3
   );
 
-  const examLabelMap: Record<string, string> = {
-    quick10: "快速10分钟",
-    standard1h: "标准1小时",
-    overview: "PTE概览",
-    mock: "PTE测试",
-  };
+  const scoreBand =
+    score < 42 ? "30 - 42" : score < 50 ? "42 - 50" : score < 58 ? "50 - 58" : "58+";
 
-  const examLabel = examLabelMap[selectedExam] ?? "未选择考试";
+  const courseRecommendation = (() => {
+    switch (scoreBand) {
+      case "30 - 42":
+        return {
+          className: "A 基础班",
+          duration: "8 周体系课",
+          subLabel: "基础重建 · 稳步补强",
+          intro:
+            "适合基础薄弱、三科整体不稳的学生，先把底层能力补起来，再进入更高档位训练。",
+          feature1:
+            "从高频词汇、基础语法、听力识别入手，优先修正最容易拖分的核心问题。",
+          feature2:
+            "课程节奏更稳，配套阶段练习与老师跟进，帮助学生建立持续做题能力与正确习惯。",
+        };
+
+      case "42 - 50":
+        return {
+          className: "B 提升班",
+          duration: "6-8 周强化课",
+          subLabel: "稳基础 · 过线提升",
+          intro:
+            "适合已有一定基础、接近 50 但表现还不稳定的学生，重点是把分数先稳住。",
+          feature1:
+            "围绕高频题型、做题结构和输出稳定性展开训练，减少忽高忽低的情况。",
+          feature2:
+            "课程会同时补基础与控节奏，帮助学生把已有能力真正转化为更稳定的分数表现。",
+        };
+
+      case "50 - 58":
+        return {
+          className: "B 提升班",
+          duration: "6 周进阶课",
+          subLabel: "补短板 · 稳输出",
+          intro:
+            "适合已经具备过线潜力、但还需要继续补短板和提升稳定性的学生。",
+          feature1:
+            "重点处理拉分板块，强化题型策略、时间控制与中高分段作答稳定度。",
+          feature2:
+            "通过专项训练与阶段模考，把原本接近目标的学生往更高区间继续推进。",
+        };
+
+      default:
+        return {
+          className: "C 冲刺班",
+          duration: "4-6 周冲刺课",
+          subLabel: "冲高分 · 提速提稳",
+          intro:
+            "适合基础已成型的学生，主要目标不是重补基础，而是进一步提速、提稳、冲高分。",
+          feature1:
+            "课程聚焦高频失分点、答题效率与临场稳定性，帮助学生把能力发挥得更完整。",
+          feature2:
+            "更强调模考节奏、错题精修与冲刺策略，适合已经进入高分段的学生继续突破。",
+        };
+    }
+  })();
+
+  const numericTarget = Number(targetScore || 0);
+  const hasTarget = Number.isFinite(numericTarget) && numericTarget > 0;
+  const rawGap = hasTarget ? numericTarget - score : null;
+
+  const gapDisplay =
+    rawGap === null
+      ? "未计算"
+      : rawGap > 0
+      ? `差 ${rawGap} 分`
+      : rawGap < 0
+      ? `超出 ${Math.abs(rawGap)} 分`
+      : "已达目标";
+
+  let predictionLabel = "较低";
+  let predictionPercent = 35;
+
+  if (rawGap !== null) {
+    if (rawGap <= 5) {
+      predictionLabel = "较高";
+      predictionPercent = 78;
+    } else if (rawGap <= 10) {
+      predictionLabel = "中等";
+      predictionPercent = 62;
+    } else if (rawGap <= 20) {
+      predictionLabel = "一般";
+      predictionPercent = 48;
+    }
+  }
 
   return (
     <div className={styles.shell}>
@@ -89,12 +166,10 @@ export default function ResultScreen({
 
               <div className={styles.scoreGrid}>
                 <div className={styles.scoreRow}>
-                  <div className={styles.scoreBox}>
-                    {score} / {total}
-                  </div>
+                  <div className={styles.scoreBox}>{scoreBand}</div>
                   <div className={styles.scoreMeta}>
                     <h4>当前预估表现</h4>
-                    <p>基于本次测评答题表现得到的当前能力区间参考。</p>
+                    <p>基于本次测评答题表现映射得到的当前分数区间参考。</p>
                   </div>
                 </div>
 
@@ -108,39 +183,40 @@ export default function ResultScreen({
 
                 <div className={styles.scoreRow}>
                   <div className={`${styles.scoreBox} ${styles.redText}`}>
-                    {examLabel}
+                    {gapDisplay}
                   </div>
                   <div className={styles.scoreMeta}>
-                    <h4>考试入口</h4>
-                    <p>当前学生选择进入的测试路径或考试模式。</p>
+                    <h4>目标差距</h4>
+                    <p>目标分数与当前预估分数之间的实际差值。</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className={styles.panelCard}>
-              <div className={styles.sectionKicker}>推荐学习路径</div>
+              <div className={styles.sectionKicker}>推荐班级方案</div>
 
               <div className={styles.pathList}>
                 <div className={styles.pathStep}>
-                  <strong>第一阶段：听力基础</strong>
+                  <strong>{courseRecommendation.className}</strong>
                   <span>
-                    4周 · 提升识别准确率、语块捕捉能力与熟悉模式恢复能力
+                    {courseRecommendation.duration} · {courseRecommendation.subLabel}
                   </span>
                 </div>
 
                 <div className={styles.pathStep}>
-                  <strong>第二阶段：结构与作答控制</strong>
-                  <span>
-                    4周 · 强化句子响应、结构稳定性与分数转化能力
-                  </span>
+                  <strong>班级定位</strong>
+                  <span>{courseRecommendation.intro}</span>
                 </div>
 
                 <div className={styles.pathStep}>
-                  <strong>第三阶段：模考与精修</strong>
-                  <span>
-                    2周 · 定向纠错、时间控制与最后冲分
-                  </span>
+                  <strong>课程特点 01</strong>
+                  <span>{courseRecommendation.feature1}</span>
+                </div>
+
+                <div className={styles.pathStep}>
+                  <strong>课程特点 02</strong>
+                  <span>{courseRecommendation.feature2}</span>
                 </div>
               </div>
             </div>
@@ -165,7 +241,9 @@ export default function ResultScreen({
                 <div className={styles.heroHighlightSub}>
                   完成系统训练后的预估表现
                 </div>
-                <div className={styles.heroHighlightValue}>较高（78%）</div>
+                <div className={styles.heroHighlightValue}>
+                  {predictionLabel}（{predictionPercent}%）
+                </div>
               </div>
 
               <div className={styles.heroText}>

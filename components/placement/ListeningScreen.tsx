@@ -1,32 +1,40 @@
 "use client";
 
-import { useState, useRef } from "react";
-import styles from "./ReadingScreen.module.css";
+import { useEffect, useRef, useState } from "react";
+import styles from "./ListeningScreen.module.css";
 
 type ListeningItem = {
   id: string;
   audioUrl: string;
   expectedText: string;
+  prompt?: string;
 };
 
 type Props = {
-  items: ListeningItem[];
-  onFinish: (answers: string[]) => void;
+  item?: ListeningItem | null;
+  onNext: (payload: { answer: string; isCorrect: boolean }) => void;
 };
 
-export default function ListeningScreen({ items, onFinish }: Props) {
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+export default function ListeningScreen({ item, onNext }: Props) {
+  const [answer, setAnswer] = useState("");
   const [playCount, setPlayCount] = useState(0);
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const item = items[index];
+  useEffect(() => {
+    setAnswer("");
+    setPlayCount(0);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.controls = true;
+    }
+  }, [item?.id]);
+
+  if (!item) return null;
 
   function handleAnswerChange(value: string) {
-    const next = [...answers];
-    next[index] = value;
-    setAnswers(next);
+    setAnswer(value);
   }
 
   function handleAudioPlay() {
@@ -48,37 +56,37 @@ export default function ListeningScreen({ items, onFinish }: Props) {
     }
   }
 
-  function handleNext() {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.controls = true;
-    }
+function handleNext() {
+  const safeItem = item;
+  if (!safeItem) return;
 
-    if (index + 1 < items.length) {
-      setIndex(index + 1);
-      setPlayCount(0);
-    } else {
-      onFinish(answers);
-    }
+  const userAnswer = answer.trim().toLowerCase();
+  const expected = safeItem.expectedText.trim().toLowerCase();
+
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    audioRef.current.controls = true;
   }
 
+  onNext({
+    answer,
+    isCorrect: userAnswer === expected,
+  });
+}
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div className={styles.title}>
-            Listening – Question {index + 1}
-          </div>
-
+          <div className={styles.title}>Write From Dictation</div>
           <div className={styles.subtitle}>
-            Type the sentence exactly as dictated.
+            {item.prompt || "Type the sentence exactly as dictated."}
           </div>
         </div>
 
         <div className={styles.blankBlock}>
           <div className={styles.blankTitle}>
-            {index + 1}. Type the sentence exactly as dictated.
+            Type the sentence exactly as dictated.
           </div>
 
           <div style={{ marginTop: "16px" }}>
@@ -105,7 +113,7 @@ export default function ListeningScreen({ items, onFinish }: Props) {
 
           <textarea
             placeholder="Type what you heard"
-            value={answers[index] || ""}
+            value={answer}
             onChange={(e) => handleAnswerChange(e.target.value)}
             style={{
               marginTop: "18px",
