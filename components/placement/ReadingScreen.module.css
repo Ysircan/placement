@@ -178,3 +178,24 @@
   }
 
 }
+.option {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.optionLocked {
+  pointer-events: none;
+}
+
+.blankBlockLocked {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option:hover {
+    transform: translate(-2px, -2px);
+  }
+}

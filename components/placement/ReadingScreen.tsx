@@ -25,17 +25,38 @@ export default function ReadingScreen({
 }: ReadingScreenProps) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [activeBlank, setActiveBlank] = useState<number | null>(null);
+  const [interactionReady, setInteractionReady] = useState(false);
 
-  // 每次进入新的 passage，都重置，避免自动带出旧答案
   useEffect(() => {
     setAnswers({});
     setActiveBlank(null);
+    setInteractionReady(false);
+
+    const timer = window.setTimeout(() => {
+      setInteractionReady(true);
+    }, 180);
+
+    return () => window.clearTimeout(timer);
   }, [passageIndex, passage, blanks]);
+
+  const handleBlankClick = (blankNumber: number) => {
+    if (!interactionReady) return;
+    setActiveBlank(blankNumber);
+  };
+
+  const handleOptionClick = (blankNumber: number, opt: string) => {
+    if (!interactionReady) return;
+
+    setActiveBlank(blankNumber);
+    setAnswers((prev) => ({
+      ...prev,
+      [blankNumber]: opt,
+    }));
+  };
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        {/* header */}
         <div className={styles.header}>
           <div className={styles.title}>Reading</div>
           <div className={styles.subtitle}>
@@ -43,9 +64,7 @@ export default function ReadingScreen({
           </div>
         </div>
 
-        {/* layout */}
         <div className={styles.layout}>
-          {/* LEFT : passage */}
           <div className={styles.passage}>
             {passage.split(/(\(\d+\))/g).map((part, i) => {
               const match = part.match(/\((\d+)\)/);
@@ -59,9 +78,11 @@ export default function ReadingScreen({
                   key={i}
                   style={{
                     fontWeight: "600",
-                    background: activeBlank === num ? "#ffd43b" : "transparent",
+                    background:
+                      activeBlank === num ? "#ffd43b" : "transparent",
                     padding: "2px 4px",
                     borderRadius: "4px",
+                    transition: "background 0.12s ease",
                   }}
                 >
                   {part}
@@ -70,13 +91,14 @@ export default function ReadingScreen({
             })}
           </div>
 
-          {/* RIGHT : blanks */}
           <div className={styles.questionPanel}>
             {blanks.map((blank) => (
               <div
                 key={blank.blankNumber}
-                className={styles.blankBlock}
-                onClick={() => setActiveBlank(blank.blankNumber)}
+                className={`${styles.blankBlock} ${
+                  !interactionReady ? styles.blankBlockLocked : ""
+                }`}
+                onClick={() => handleBlankClick(blank.blankNumber)}
               >
                 <div className={styles.blankTitle}>
                   Blank {blank.blankNumber}
@@ -84,24 +106,22 @@ export default function ReadingScreen({
 
                 <div className={styles.options}>
                   {blank.options.map((opt) => (
-                    <div
+                    <button
                       key={opt}
+                      type="button"
+                      disabled={!interactionReady}
                       className={`${styles.option} ${
                         answers[blank.blankNumber] === opt
                           ? styles.selected
                           : ""
-                      }`}
+                      } ${!interactionReady ? styles.optionLocked : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActiveBlank(blank.blankNumber);
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [blank.blankNumber]: opt,
-                        }));
+                        handleOptionClick(blank.blankNumber, opt);
                       }}
                     >
                       {opt}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>

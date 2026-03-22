@@ -21,12 +21,26 @@ export default function QuestionScreen({
   onNext,
 }: QuestionScreenProps) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [optionReady, setOptionReady] = useState(false);
 
   useEffect(() => {
     setSelected(null);
+    setOptionReady(false);
+
+    const timer = window.setTimeout(() => {
+      setOptionReady(true);
+    }, 180);
+
+    return () => window.clearTimeout(timer);
   }, [questionNumber, question]);
 
   const progressPercent = (questionNumber / totalQuestions) * 100;
+
+  const handleSelect = (opt: string) => {
+    if (!optionReady) return;
+    setSelected(opt);
+    onSelect(opt);
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -49,18 +63,17 @@ export default function QuestionScreen({
 
         <div className={styles.options}>
           {options.map((opt, i) => (
-            <div
+            <button
               key={i}
+              type="button"
+              disabled={!optionReady}
               className={`${styles.option} ${
                 selected === opt ? styles.selected : ""
-              }`}
-              onClick={() => {
-                setSelected(opt);
-                onSelect(opt);
-              }}
+              } ${!optionReady ? styles.optionLocked : ""}`}
+              onClick={() => handleSelect(opt)}
             >
               {opt}
-            </div>
+            </button>
           ))}
         </div>
 

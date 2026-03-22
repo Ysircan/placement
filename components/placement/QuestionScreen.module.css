@@ -233,3 +233,21 @@
   }
 
 }
+.option {
+  width: 100%;
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.optionLocked {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option:hover {
+    transform: translate(-2px, -2px);
+  }
+}
