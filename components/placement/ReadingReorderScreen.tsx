@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type TouchEvent } from "react";
 import styles from "./ReadingReorderScreen.module.css";
 
 type ReadingReorderQuestion = {
@@ -84,10 +84,72 @@ export default function ReadingReorderScreen({
     setItems(updated);
   };
 
-  const handleReset = () => {
-    setItems([...initialItems]);
+  const clearDragState = () => {
     setDraggedItem(null);
     setDragOverItem(null);
+  };
+
+  const getTouchTargetItem = (clientX: number, clientY: number) => {
+    const element = document.elementFromPoint(clientX, clientY);
+    if (!element) return null;
+
+    const itemElement = element.closest("[data-reorder-item='true']");
+    if (!(itemElement instanceof HTMLElement)) return null;
+
+    const targetValue = itemElement.dataset.itemValue;
+    return targetValue ?? null;
+  };
+
+  const handleTouchStart = (item: string) => {
+    setDraggedItem(item);
+    setDragOverItem(null);
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (!draggedItem) return;
+
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const targetItem = getTouchTargetItem(touch.clientX, touch.clientY);
+
+    if (targetItem && targetItem !== draggedItem) {
+      setDragOverItem(targetItem);
+    } else {
+      setDragOverItem(null);
+    }
+
+    e.preventDefault();
+  };
+
+  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+    if (!draggedItem) {
+      clearDragState();
+      return;
+    }
+
+    const touch = e.changedTouches[0];
+    const endTarget = touch
+      ? getTouchTargetItem(touch.clientX, touch.clientY)
+      : null;
+
+    const dropTarget =
+      endTarget && endTarget !== draggedItem ? endTarget : dragOverItem;
+
+    if (dropTarget && dropTarget !== draggedItem) {
+      moveItem(draggedItem, dropTarget);
+    }
+
+    clearDragState();
+  };
+
+  const handleTouchCancel = () => {
+    clearDragState();
+  };
+
+  const handleReset = () => {
+    setItems([...initialItems]);
+    clearDragState();
   };
 
   const handleNext = () => {
@@ -122,13 +184,14 @@ export default function ReadingReorderScreen({
                 draggedItem === item ? styles.dragging : "",
                 dragOverItem === item ? styles.over : "",
               ].join(" ")}
+              data-reorder-item="true"
+              data-item-value={item}
               draggable
               onDragStart={() => {
                 setDraggedItem(item);
               }}
               onDragEnd={() => {
-                setDraggedItem(null);
-                setDragOverItem(null);
+                clearDragState();
               }}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -148,6 +211,12 @@ export default function ReadingReorderScreen({
                 }
                 setDragOverItem(null);
               }}
+              onTouchStart={() => {
+                handleTouchStart(item);
+              }}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
             >
               <div className={styles.order}>{index + 1}</div>
               <div className={styles.text}>{item}</div>

@@ -113,9 +113,9 @@ export default function ResultScreen({
                 </div>
 
                 <div className={`${styles.scoreRow} ${styles.scoreRowTight}`}>
-                  <div className={`${styles.scoreBox} ${styles.redText}`}>
-                    {gapDisplay}
-                  </div>
+                <div className={`${styles.scoreBox} ${styles.redText} ${styles.scoreBoxGap}`}>
+  {gapDisplay}
+</div>
                   <div className={styles.scoreMeta}>
                     <h4>目标差距</h4>
                     <p>目标分数与当前预估区间之间的参考差距。</p>

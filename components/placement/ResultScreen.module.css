@@ -24,7 +24,7 @@
 }
 
 .shell {
-  width: min(1400px, calc(100vw - 32px));
+  width: min(1480px, calc(100vw - 32px)); /* slightly wider desktop shell */
   margin: 18px auto;
   background: var(--panel);
   border: 3px solid var(--line);
@@ -82,7 +82,7 @@
 
 .main {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: minmax(320px, 340px) minmax(0, 1fr); /* widen the content column */
   min-height: 860px;
 }
 
@@ -94,6 +94,7 @@
     rgba(255, 255, 255, 0.28),
     rgba(255, 255, 255, 0.08)
   );
+  min-width: 0; /* let sidebar items shrink without forcing overflow */
 }
 
 .stack {
@@ -127,7 +128,7 @@
 
 .scoreRow {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: minmax(92px, 102px) minmax(0, 1fr); /* free more room for the sidebar copy */
   gap: 12px;
   align-items: center;
 }
@@ -140,10 +141,23 @@
   border: 3px solid var(--line);
   border-radius: 18px;
   background: #fff;
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 900;
   letter-spacing: -0.03em;
   color: var(--text);
+  min-width: 0; /* keep the box from dominating the row */
+  padding: 0 10px; /* preserve the look while easing tight fits */
+  white-space: nowrap; /* keep short score labels on one line */
+}
+.scoreBoxGap {
+  font-size: 20px;
+  padding: 0 4px;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  line-height: 1;
+}
+.scoreMeta {
+  min-width: 0; /* allow the text column to wrap cleanly */
 }
 
 .scoreMeta h4 {
@@ -312,6 +326,7 @@
 .content {
   padding: 28px 28px 32px;
   color: var(--text);
+  min-width: 0; /* prevent the right panel from clipping its children */
 }
 
 .hero {
@@ -324,6 +339,7 @@
 
 .heroMain {
   width: 100%;
+  min-width: 0; /* keep hero content inside the main column */
 }
 
 .heroHighlight {
@@ -341,12 +357,13 @@
   justify-content: space-between;
   gap: 28px;
   width: 100%;
+  min-width: 0; /* stop the highlight block from forcing overflow */
 }
 
 
 .heroHighlightText {
-  flex: 0 0 240px;
-  max-width: 240px;
+  flex: 0 1 220px; /* relax the fixed text column */
+  max-width: 260px; /* keep the text block visually balanced */
   min-width: 0;
 }
 
@@ -370,12 +387,12 @@
 }
 
 .heroHighlightValue {
-  flex: 1;
+  flex: 1 1 auto; /* let the value use the remaining width */
   min-width: 0;
   text-align: center;
   white-space: nowrap;
   font-size: clamp(72px, 8vw, 150px);
-  line-height: 1; /* 原来是 0.92 */
+  line-height: 1;
   font-weight: 900;
   letter-spacing: -0.05em;
   color: var(--green-text);
@@ -399,7 +416,7 @@
 
 .metricGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* let the cards fully share the available row width */
   gap: 22px;
   margin-bottom: 24px;
 }
@@ -414,6 +431,7 @@
   display: flex;
   flex-direction: column;
   color: var(--text);
+  min-width: 0; /* avoid card content pushing the grid wider */
 }
 
 .metricTop {
@@ -598,15 +616,16 @@
     font-size: 68px;
   }
 
-.heroHighlight {
-  padding: 20px;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
+  .heroHighlight {
+    padding: 20px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 
-.heroHighlightValue {
-  justify-self: start;
-}
+  .heroHighlightValue {
+    justify-self: start;
+  }
+
   .heroText h1 {
     white-space: normal;
   }
@@ -663,6 +682,7 @@
     padding: 9px 12px;
   }
 }
+
 .sidebar .panelCard {
   box-shadow: 5px 5px 0 var(--line);
 }
@@ -726,4 +746,3 @@
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-
