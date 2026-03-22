@@ -616,15 +616,31 @@
     font-size: 68px;
   }
 
+@media (max-width: 760px) {
   .heroHighlight {
     padding: 20px;
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
     gap: 16px;
+    min-height: auto;
+  }
+
+  .heroHighlightText {
+    flex: none;
+    max-width: none;
+    width: 100%;
   }
 
   .heroHighlightValue {
-    justify-self: start;
+    width: 100%;
+    text-align: left;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 0.95;
+      font-size: clamp(36px, 11vw, 56px);
   }
+}
 
   .heroText h1 {
     white-space: normal;
