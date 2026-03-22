@@ -151,6 +151,7 @@ export default function HighlightIncorrectWordsScreen({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playCountRef = useRef(0);
   const countedCurrentPlayRef = useRef(false);
+  const ignoreNextClickRef = useRef(false);
 
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [playCount, setPlayCount] = useState(0);
@@ -219,6 +220,7 @@ export default function HighlightIncorrectWordsScreen({
 
     playCountRef.current = 0;
     countedCurrentPlayRef.current = false;
+    ignoreNextClickRef.current = false;
 
     stopAudioElement(false);
 
@@ -316,6 +318,24 @@ export default function HighlightIncorrectWordsScreen({
       }
       return [...prev, index];
     });
+  };
+
+  const handleWordTouchStart = (
+    event: React.TouchEvent<HTMLSpanElement>,
+    index: number
+  ) => {
+    event.preventDefault();
+    ignoreNextClickRef.current = true;
+    toggleWord(index);
+  };
+
+  const handleWordClick = (index: number) => {
+    if (ignoreNextClickRef.current) {
+      ignoreNextClickRef.current = false;
+      return;
+    }
+
+    toggleWord(index);
   };
 
   const handlePlayToggle = async () => {
@@ -513,10 +533,15 @@ export default function HighlightIncorrectWordsScreen({
                     className={`${styles.word} ${
                       isSelected ? styles.selected : ""
                     }`}
-                    onClick={() => toggleWord(index)}
+                    onClick={() => handleWordClick(index)}
+                    onTouchStart={(event) => handleWordTouchStart(event, index)}
                     role="button"
                     tabIndex={0}
                     aria-pressed={isSelected}
+                    style={{
+                      WebkitTapHighlightColor: "transparent",
+                      touchAction: "manipulation",
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
