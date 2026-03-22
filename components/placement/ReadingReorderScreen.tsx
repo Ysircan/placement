@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type TouchEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./ReadingReorderScreen.module.css";
 
 type ReadingReorderQuestion = {
@@ -51,16 +51,6 @@ function getShuffledItems(items: string[], correctOrder: string[]) {
   return shuffled;
 }
 
-function detectTouchDevice() {
-  if (typeof window === "undefined") return false;
-
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(pointer: coarse)").matches
-  );
-}
-
 export default function ReadingReorderScreen({
   question,
   questionNumber,
@@ -71,11 +61,9 @@ export default function ReadingReorderScreen({
   const [initialItems, setInitialItems] = useState<string[]>([]);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverItem, setDragOverItem] = useState<string | null>(null);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-  useEffect(() => {
-    setIsTouchDevice(detectTouchDevice());
-  }, []);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     const shuffled = getShuffledItems(question.items, question.correctOrder);
@@ -83,67 +71,55 @@ export default function ReadingReorderScreen({
     setInitialItems(shuffled);
     setDraggedItem(null);
     setDragOverItem(null);
+    isDraggingRef.current = false;
   }, [question.id, question.items, question.correctOrder]);
 
   useEffect(() => {
-    if (!isTouchDevice) return;
-
     if (!draggedItem) {
       document.body.style.overflow = "";
-      document.body.style.touchAction = "";
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
-    const previousTouchAction = document.body.style.touchAction;
+    const prevOverflow = document.body.style.overflow;
+    const prevUserSelect = document.body.style.userSelect;
+    const prevCursor = document.body.style.cursor;
 
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "grabbing";
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.touchAction = previousTouchAction;
+      document.body.style.overflow = prevOverflow;
+      document.body.style.userSelect = prevUserSelect;
+      document.body.style.cursor = prevCursor;
     };
-  }, [draggedItem, isTouchDevice]);
-
-  const listTouchStyle = useMemo(
-    () => (isTouchDevice ? ({ touchAction: "none" } as const) : undefined),
-    [isTouchDevice]
-  );
-
-  const itemTouchStyle = useMemo(
-    () =>
-      isTouchDevice
-        ? ({
-            touchAction: "none",
-            WebkitUserSelect: "none",
-            userSelect: "none",
-            WebkitUserDrag: "none",
-          } as const)
-        : undefined,
-    [isTouchDevice]
-  );
+  }, [draggedItem]);
 
   const moveItem = (fromText: string, toText: string) => {
     if (fromText === toText) return;
 
-    const fromIndex = items.findIndex((item) => item === fromText);
-    const toIndex = items.findIndex((item) => item === toText);
+    setItems((prev) => {
+      const fromIndex = prev.findIndex((item) => item === fromText);
+      const toIndex = prev.findIndex((item) => item === toText);
 
-    if (fromIndex === -1 || toIndex === -1) return;
+      if (fromIndex === -1 || toIndex === -1) return prev;
 
-    const updated = [...items];
-    const [moved] = updated.splice(fromIndex, 1);
-    updated.splice(toIndex, 0, moved);
-    setItems(updated);
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      return updated;
+    });
   };
 
   const clearDragState = () => {
     setDraggedItem(null);
     setDragOverItem(null);
+    isDraggingRef.current = false;
   };
 
-  const getTouchTargetItem = (clientX: number, clientY: number) => {
+  const getTargetItemFromPoint = (clientX: number, clientY: number) => {
     const element = document.elementFromPoint(clientX, clientY);
     if (!element) return null;
 
@@ -153,19 +129,27 @@ export default function ReadingReorderScreen({
     return itemElement.dataset.itemValue ?? null;
   };
 
-  const handleTouchStart = (item: string) => {
-    if (!isTouchDevice) return;
+  const handlePointerDown = (
+    e: React.PointerEvent<HTMLDivElement>,
+    item: string
+  ) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    isDraggingRef.current = true;
     setDraggedItem(item);
     setDragOverItem(null);
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+
+    e.preventDefault();
   };
 
-  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
-    if (!isTouchDevice || !draggedItem) return;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !draggedItem) return;
 
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    const targetItem = getTouchTargetItem(touch.clientX, touch.clientY);
+    const targetItem = getTargetItemFromPoint(e.clientX, e.clientY);
 
     if (targetItem && targetItem !== draggedItem) {
       setDragOverItem(targetItem);
@@ -176,31 +160,28 @@ export default function ReadingReorderScreen({
     e.preventDefault();
   };
 
-  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
-    if (!isTouchDevice) return;
-
-    if (!draggedItem) {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !draggedItem) {
       clearDragState();
       return;
     }
 
-    const touch = e.changedTouches[0];
-    const endTarget = touch
-      ? getTouchTargetItem(touch.clientX, touch.clientY)
-      : null;
-
+    const targetItem = getTargetItemFromPoint(e.clientX, e.clientY);
     const dropTarget =
-      endTarget && endTarget !== draggedItem ? endTarget : dragOverItem;
+      targetItem && targetItem !== draggedItem ? targetItem : dragOverItem;
 
     if (dropTarget && dropTarget !== draggedItem) {
       moveItem(draggedItem, dropTarget);
     }
 
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+
     clearDragState();
   };
 
-  const handleTouchCancel = () => {
-    if (!isTouchDevice) return;
+  const handlePointerCancel = () => {
     clearDragState();
   };
 
@@ -232,7 +213,10 @@ export default function ReadingReorderScreen({
           <p className={styles.desc}>{question.prompt}</p>
         </section>
 
-        <div className={styles.list} style={listTouchStyle}>
+        <div
+          ref={listRef}
+          className={styles.list}
+        >
           {items.map((item, index) => (
             <div
               key={`${question.id}-${item}`}
@@ -245,43 +229,10 @@ export default function ReadingReorderScreen({
                 .join(" ")}
               data-reorder-item="true"
               data-item-value={item}
-              draggable={!isTouchDevice}
-              style={itemTouchStyle}
-              onDragStart={() => {
-                if (isTouchDevice) return;
-                setDraggedItem(item);
-              }}
-              onDragEnd={() => {
-                if (isTouchDevice) return;
-                clearDragState();
-              }}
-              onDragOver={(e) => {
-                if (isTouchDevice) return;
-                e.preventDefault();
-                if (draggedItem && draggedItem !== item) {
-                  setDragOverItem(item);
-                }
-              }}
-              onDragLeave={() => {
-                if (isTouchDevice) return;
-                if (dragOverItem === item) {
-                  setDragOverItem(null);
-                }
-              }}
-              onDrop={(e) => {
-                if (isTouchDevice) return;
-                e.preventDefault();
-                if (draggedItem) {
-                  moveItem(draggedItem, item);
-                }
-                setDragOverItem(null);
-              }}
-              onTouchStart={() => {
-                handleTouchStart(item);
-              }}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={handleTouchCancel}
+              onPointerDown={(e) => handlePointerDown(e, item)}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
             >
               <div className={styles.order}>{index + 1}</div>
               <div className={styles.text}>{item}</div>
