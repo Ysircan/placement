@@ -208,7 +208,7 @@ At the same time, says Kippen, you can fool the tensed muscle into relaxing (4) 
     },
     {
       id: "reading-a-2",
-      difficulty: "A",
+      difficulty: "B",
       title: "The Speech of Alchemy",
       body: `
 To learn the speech of alchemy, an early form of (1) ___ in which people attempted to turn metals into gold, it helps to think back to a time when there was no science: no atomic number or weight, no periodic chart, no list of elements.
@@ -221,7 +221,7 @@ Without knowledge of atomic structures, how would it be (5) ___ to tell elements
         {
           id: "read-a-2-blank-1",
           type: "reading-blank",
-          difficulty: "A",
+          difficulty: "B",
           prompt: "",
           passageId: "reading-a-2",
           blankNumber: 1,
@@ -231,7 +231,7 @@ Without knowledge of atomic structures, how would it be (5) ___ to tell elements
         {
           id: "read-a-2-blank-2",
           type: "reading-blank",
-          difficulty: "A",
+          difficulty: "B",
           prompt: "",
           passageId: "reading-a-2",
           blankNumber: 2,
@@ -241,7 +241,7 @@ Without knowledge of atomic structures, how would it be (5) ___ to tell elements
         {
           id: "read-a-2-blank-3",
           type: "reading-blank",
-          difficulty: "A",
+          difficulty: "B",
           prompt: "",
           passageId: "reading-a-2",
           blankNumber: 3,
@@ -251,7 +251,7 @@ Without knowledge of atomic structures, how would it be (5) ___ to tell elements
         {
           id: "read-a-2-blank-4",
           type: "reading-blank",
-          difficulty: "A",
+          difficulty: "B",
           prompt: "",
           passageId: "reading-a-2",
           blankNumber: 4,
@@ -261,7 +261,7 @@ Without knowledge of atomic structures, how would it be (5) ___ to tell elements
         {
           id: "read-a-2-blank-5",
           type: "reading-blank",
-          difficulty: "A",
+          difficulty: "B",
           prompt: "",
           passageId: "reading-a-2",
           blankNumber: 5,

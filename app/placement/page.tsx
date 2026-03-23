@@ -642,25 +642,35 @@ export default function PlacementPage() {
     setStep("listeningComplete");
   };
 
-  const handleRestart = () => {
-    localStorage.removeItem(STORAGE_KEY);
+const clearPlacementStorage = () => {
+  if (typeof window === "undefined") return;
 
-    setScore(0);
-    setVocabIndex(0);
-    setReadingPassageIndex(0);
-    setReadingSingleIndex(0);
-    setReadingReorderIndex(0);
-    setListeningFillBlankIndex(0);
-    setHiwIndex(0);
-    setWfdIndex(0);
-    setDifficultyStats(DEFAULT_DIFFICULTY_STATS);
-    setReadingStats(DEFAULT_READING_STATS);
-    setListeningStats(DEFAULT_LISTENING_STATS);
-    setStudentName("");
-    setTargetScore("");
-    setSelectedExam("");
-    setStep("start");
-  };
+  Object.keys(window.localStorage).forEach((key) => {
+    if (key.startsWith("placement_")) {
+      window.localStorage.removeItem(key);
+    }
+  });
+};
+
+const handleRestart = () => {
+  clearPlacementStorage();
+
+  setScore(0);
+  setVocabIndex(0);
+  setReadingPassageIndex(0);
+  setReadingSingleIndex(0);
+  setReadingReorderIndex(0);
+  setListeningFillBlankIndex(0);
+  setHiwIndex(0);
+  setWfdIndex(0);
+  setDifficultyStats(DEFAULT_DIFFICULTY_STATS);
+  setReadingStats(DEFAULT_READING_STATS);
+  setListeningStats(DEFAULT_LISTENING_STATS);
+  setStudentName("");
+  setTargetScore("");
+  setSelectedExam("");
+  setStep("start");
+};
 
   return (
     <>

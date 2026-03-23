@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./ListeningFillBlanksScreen.module.css";
 import type { ListeningFillBlankQuestion } from "@/lib/types/questionTypes";
 
@@ -10,121 +10,90 @@ type ListeningFillBlanksScreenProps = {
 };
 
 const MAX_PLAYS = 2;
-const PLACEMENT_PROGRESS_KEY = "placement_progress";
-const LISTENING_SESSION_META_KEY = "placement_listening_session_meta";
 
-type PlacementProgress = {
-  step?: string;
-  listeningFillBlankIndex?: number;
-  hiwIndex?: number;
-  wfdIndex?: number;
-};
+const ATTEMPT_ID_KEY = "placement_test_attempt_id";
+const ANSWERS_PREFIX = "placement_listening_fill_blanks_answers";
+const PLAYCOUNT_PREFIX = "placement_listening_fill_blanks_play_count";
+const RESET_EVENT = "placement-listening-fill-blanks-reset";
+const PARENT_PROGRESS_KEY = "placement_progress";
+const PROGRESS_SNAPSHOT_KEY = "placement_listening_fill_blanks_progress_snapshot";
 
-type ListeningSessionMeta = {
-  id: string;
-  lastOrder: number;
-};
+let hasMountedListeningFillBlanksInRuntime = false;
 
-function createListeningSessionId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
+function createAttemptId(): string {
+  if (typeof window !== "undefined" && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
   }
 
   return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-function getCurrentListeningOrder(): number {
+function getOrCreateAttemptId(): string {
+  if (typeof window === "undefined") {
+    return createAttemptId();
+  }
+
   try {
-    const rawProgress = localStorage.getItem(PLACEMENT_PROGRESS_KEY);
-    if (!rawProgress) return -1;
-
-    const progress = JSON.parse(rawProgress) as PlacementProgress;
-
-    if (progress.step === "listeningQuestion") {
-      return typeof progress.listeningFillBlankIndex === "number"
-        ? progress.listeningFillBlankIndex
-        : 0;
+    const existing = localStorage.getItem(ATTEMPT_ID_KEY);
+    if (existing && existing.trim()) {
+      return existing;
     }
 
-    if (progress.step === "hiwQuestion") {
-      return 1000 + (typeof progress.hiwIndex === "number" ? progress.hiwIndex : 0);
-    }
-
-    if (progress.step === "wfdQuestion") {
-      return 2000 + (typeof progress.wfdIndex === "number" ? progress.wfdIndex : 0);
-    }
-
-    return -1;
+    const nextId = createAttemptId();
+    localStorage.setItem(ATTEMPT_ID_KEY, nextId);
+    return nextId;
   } catch {
-    return -1;
+    return createAttemptId();
   }
 }
 
-function resolveListeningSessionId(): string {
-  const currentOrder = getCurrentListeningOrder();
+function getAnswersKey(attemptId: string, itemId: string): string {
+  return `${ANSWERS_PREFIX}_${attemptId}_${itemId}`;
+}
+
+function getPlayCountKey(attemptId: string, itemId: string): string {
+  return `${PLAYCOUNT_PREFIX}_${attemptId}_${itemId}`;
+}
+
+function getParentProgressSnapshot(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
 
   try {
-    const rawMeta = sessionStorage.getItem(LISTENING_SESSION_META_KEY);
-
-    let parsedMeta: Partial<ListeningSessionMeta> | null = null;
-    if (rawMeta) {
-      parsedMeta = JSON.parse(rawMeta) as Partial<ListeningSessionMeta>;
-    }
-
-    const existingId =
-      typeof parsedMeta?.id === "string" && parsedMeta.id.trim().length > 0
-        ? parsedMeta.id
-        : null;
-
-    const lastOrder =
-      typeof parsedMeta?.lastOrder === "number" ? parsedMeta.lastOrder : -1;
-
-    const shouldStartNewSession =
-      !existingId ||
-      (currentOrder >= 0 && lastOrder >= 0 && currentOrder < lastOrder);
-
-    if (shouldStartNewSession) {
-      const nextMeta: ListeningSessionMeta = {
-        id: createListeningSessionId(),
-        lastOrder: currentOrder,
-      };
-
-      sessionStorage.setItem(LISTENING_SESSION_META_KEY, JSON.stringify(nextMeta));
-      return nextMeta.id;
-    }
-
-    const nextOrder = currentOrder > lastOrder ? currentOrder : lastOrder;
-
-    if (nextOrder !== lastOrder) {
-      const updatedMeta: ListeningSessionMeta = {
-        id: existingId,
-        lastOrder: nextOrder,
-      };
-
-      sessionStorage.setItem(
-        LISTENING_SESSION_META_KEY,
-        JSON.stringify(updatedMeta)
-      );
-    }
-
-    return existingId;
+    return localStorage.getItem(PARENT_PROGRESS_KEY) ?? "";
   } catch {
-    const fallbackId = createListeningSessionId();
-
-    try {
-      const fallbackMeta: ListeningSessionMeta = {
-        id: fallbackId,
-        lastOrder: currentOrder,
-      };
-
-      sessionStorage.setItem(
-        LISTENING_SESSION_META_KEY,
-        JSON.stringify(fallbackMeta)
-      );
-    } catch {}
-
-    return fallbackId;
+    return "";
   }
+}
+
+function resetListeningFillBlanksStorage(nextAttemptId = createAttemptId()): string {
+  if (typeof window === "undefined") {
+    return nextAttemptId;
+  }
+
+  try {
+    const keysToDelete: string[] = [];
+
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+
+      if (
+        key === ATTEMPT_ID_KEY ||
+        key === PROGRESS_SNAPSHOT_KEY ||
+        key.startsWith(`${ANSWERS_PREFIX}_`) ||
+        key.startsWith(`${PLAYCOUNT_PREFIX}_`)
+      ) {
+        keysToDelete.push(key);
+      }
+    }
+
+    keysToDelete.forEach((key) => localStorage.removeItem(key));
+    localStorage.setItem(ATTEMPT_ID_KEY, nextAttemptId);
+  } catch {}
+
+  return nextAttemptId;
 }
 
 function formatTime(totalSeconds: number): string {
@@ -134,8 +103,25 @@ function formatTime(totalSeconds: number): string {
 
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = Math.floor(totalSeconds % 60);
-
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+/**
+ * 在“重新测试”时调用
+ * 1. 清空本组件的答案与播放次数
+ * 2. 生成新的 attemptId
+ * 3. 通知当前组件立即重置内存状态
+ */
+export function clearListeningFillBlanksStorage() {
+  if (typeof window === "undefined") return;
+
+  const nextAttemptId = resetListeningFillBlanksStorage();
+
+  window.dispatchEvent(
+    new CustomEvent(RESET_EVENT, {
+      detail: { attemptId: nextAttemptId },
+    })
+  );
 }
 
 export default function ListeningFillBlanksScreen({
@@ -145,157 +131,188 @@ export default function ListeningFillBlanksScreen({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playCountRef = useRef(0);
   const countedCurrentPlayRef = useRef(false);
+  const mountCheckRef = useRef(false);
 
+  const [attemptId, setAttemptId] = useState<string>(() => getOrCreateAttemptId());
   const [answers, setAnswers] = useState<string[]>([]);
   const [playCount, setPlayCount] = useState(0);
-  const [hydratedItemId, setHydratedItemId] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [persistReady, setPersistReady] = useState(false);
 
-  const answersStorageKey =
-    item && sessionId
-      ? `placement_listening_fill_blanks_answers_${sessionId}_${item.id}`
-      : "";
-
-  const playCountStorageKey =
-    item && sessionId
-      ? `placement_listening_fill_blanks_play_count_${sessionId}_${item.id}`
-      : "";
-
-  const stopAudioElement = (clearSource = false) => {
+  const stopAudio = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     audio.pause();
     audio.currentTime = 0;
-
-    if (clearSource) {
-      audio.removeAttribute("src");
-
-      const source = audio.querySelector("source");
-      if (source) {
-        source.removeAttribute("src");
-      }
-
-      audio.load();
-    }
-  };
-
-  const stopAudio = (clearSource = false) => {
-    stopAudioElement(clearSource);
     setIsPlaying(false);
     setCurrentTime(0);
     countedCurrentPlayRef.current = false;
-  };
-
-  useEffect(() => {
-    return () => {
-      countedCurrentPlayRef.current = false;
-      stopAudioElement(true);
-    };
   }, []);
 
-  useEffect(() => {
-    let isActive = true;
+  const hydrateFromStorage = useCallback(
+    (nextAttemptId: string, nextItem?: ListeningFillBlankQuestion | null) => {
+      setPersistReady(false);
+      stopAudio();
 
-    playCountRef.current = 0;
-    countedCurrentPlayRef.current = false;
-
-    stopAudioElement(false);
-
-    if (!item) {
-      if (isActive) {
+      if (!nextItem) {
         setAnswers([]);
         setPlayCount(0);
-        setHydratedItemId(null);
-        setSessionId(null);
         setIsPlaying(false);
         setCurrentTime(0);
         setDuration(0);
+        playCountRef.current = 0;
+        countedCurrentPlayRef.current = false;
+        setPersistReady(true);
+        return;
       }
 
-      return () => {
-        isActive = false;
-      };
-    }
+      const emptyAnswers = nextItem.blanks.map(() => "");
+      let restoredAnswers = emptyAnswers;
+      let restoredPlayCount = 0;
 
-    const nextSessionId = resolveListeningSessionId();
-    const nextAnswersStorageKey = `placement_listening_fill_blanks_answers_${nextSessionId}_${item.id}`;
-    const nextPlayCountStorageKey = `placement_listening_fill_blanks_play_count_${nextSessionId}_${item.id}`;
+      try {
+        const savedAnswers = localStorage.getItem(
+          getAnswersKey(nextAttemptId, nextItem.id)
+        );
 
-    let nextAnswers = item.blanks.map(() => "");
-    let nextPlayCount = 0;
-
-    try {
-      const savedAnswers = sessionStorage.getItem(nextAnswersStorageKey);
-
-      if (savedAnswers) {
-        const parsedAnswers = JSON.parse(savedAnswers);
-
-        if (Array.isArray(parsedAnswers)) {
-          nextAnswers = item.blanks.map((_, index) =>
-            String(parsedAnswers[index] ?? "")
-          );
+        if (savedAnswers) {
+          const parsed = JSON.parse(savedAnswers);
+          if (Array.isArray(parsed)) {
+            restoredAnswers = nextItem.blanks.map((_, index) =>
+              String(parsed[index] ?? "")
+            );
+          }
         }
-      }
-    } catch {}
+      } catch {}
 
-    try {
-      const savedPlayCount = Number(
-        sessionStorage.getItem(nextPlayCountStorageKey)
-      );
+      try {
+        const savedPlayCount = Number(
+          localStorage.getItem(getPlayCountKey(nextAttemptId, nextItem.id))
+        );
 
-      if (Number.isFinite(savedPlayCount) && savedPlayCount >= 0) {
-        nextPlayCount = Math.min(savedPlayCount, MAX_PLAYS);
-      }
-    } catch {}
+        if (Number.isFinite(savedPlayCount) && savedPlayCount >= 0) {
+          restoredPlayCount = Math.min(savedPlayCount, MAX_PLAYS);
+        }
+      } catch {}
 
-    if (isActive) {
-      setAnswers(nextAnswers);
-      setPlayCount(nextPlayCount);
-      setHydratedItemId(item.id);
-      setSessionId(nextSessionId);
-
+      setAnswers(restoredAnswers);
+      setPlayCount(restoredPlayCount);
       setIsPlaying(false);
       setCurrentTime(0);
       setDuration(0);
 
-      playCountRef.current = nextPlayCount;
+      playCountRef.current = restoredPlayCount;
       countedCurrentPlayRef.current = false;
+
+      setPersistReady(true);
+    },
+    [stopAudio]
+  );
+
+  useEffect(() => {
+    if (!mountCheckRef.current) {
+      mountCheckRef.current = true;
+
+      let shouldResetForNewAttempt = hasMountedListeningFillBlanksInRuntime;
+      hasMountedListeningFillBlanksInRuntime = true;
+
+      if (!shouldResetForNewAttempt) {
+        try {
+          const previousSnapshot =
+            localStorage.getItem(PROGRESS_SNAPSHOT_KEY) ?? "";
+          const currentSnapshot = getParentProgressSnapshot();
+
+          shouldResetForNewAttempt =
+            Boolean(previousSnapshot) && previousSnapshot !== currentSnapshot;
+        } catch {}
+      }
+
+      if (shouldResetForNewAttempt) {
+        const nextAttemptId = resetListeningFillBlanksStorage();
+
+        if (nextAttemptId !== attemptId) {
+          setAttemptId(nextAttemptId);
+          return;
+        }
+      }
     }
 
-    return () => {
-      isActive = false;
+    const latestAttemptId = getOrCreateAttemptId();
+    if (latestAttemptId !== attemptId) {
+      setAttemptId(latestAttemptId);
+      return;
+    }
+
+    hydrateFromStorage(latestAttemptId, item);
+  }, [attemptId, item, hydrateFromStorage]);
+
+  useEffect(() => {
+    const handleReset = (event: Event) => {
+      const customEvent = event as CustomEvent<{ attemptId?: string }>;
+      const nextAttemptId = resetListeningFillBlanksStorage(
+        customEvent.detail?.attemptId || createAttemptId()
+      );
+
+      setAttemptId(nextAttemptId);
+      hydrateFromStorage(nextAttemptId, item);
     };
-  }, [item, item?.id]);
+
+    window.addEventListener(RESET_EVENT, handleReset);
+    return () => {
+      window.removeEventListener(RESET_EVENT, handleReset);
+    };
+  }, [hydrateFromStorage, item]);
 
   useEffect(() => {
-    if (!item || !sessionId || hydratedItemId !== item.id) return;
-
-    try {
-      sessionStorage.setItem(answersStorageKey, JSON.stringify(answers));
-    } catch {}
-  }, [answers, answersStorageKey, hydratedItemId, item, sessionId]);
+    return () => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+      }
+    };
+  }, []);
 
   useEffect(() => {
-    if (!item || !sessionId || hydratedItemId !== item.id) return;
+    try {
+      localStorage.setItem(PROGRESS_SNAPSHOT_KEY, getParentProgressSnapshot());
+    } catch {}
+  }, [attemptId, item]);
+
+  useEffect(() => {
+    if (!item || !attemptId || !persistReady) return;
 
     try {
-      sessionStorage.setItem(playCountStorageKey, String(playCount));
+      localStorage.setItem(
+        getAnswersKey(attemptId, item.id),
+        JSON.stringify(answers)
+      );
     } catch {}
-  }, [hydratedItemId, item, playCount, playCountStorageKey, sessionId]);
+  }, [answers, attemptId, item, persistReady]);
+
+  useEffect(() => {
+    if (!item || !attemptId || !persistReady) return;
+
+    try {
+      localStorage.setItem(
+        getPlayCountKey(attemptId, item.id),
+        String(playCount)
+      );
+    } catch {}
+  }, [attemptId, item, playCount, persistReady]);
 
   const transcriptParts = useMemo(() => {
     if (!item) return [];
 
     const text = item.transcript.trim();
     const parts: Array<string | { blankIndex: number }> = [];
+    const blankRegex = /\[blank-(\d+)\]/g;
+
     let lastIndex = 0;
     let match: RegExpExecArray | null;
-    const blankRegex = /\[blank-(\d+)\]/g;
 
     while ((match = blankRegex.exec(text)) !== null) {
       const start = match.index;
@@ -336,9 +353,9 @@ export default function ListeningFillBlanksScreen({
 
     const endedLike =
       audio.duration > 0 && audio.currentTime >= audio.duration - 0.15;
-    const freshStart = audio.currentTime <= 0.15 || audio.ended || endedLike;
+    const isFreshStart = audio.currentTime <= 0.15 || audio.ended || endedLike;
 
-    if (freshStart && !countedCurrentPlayRef.current) {
+    if (isFreshStart && !countedCurrentPlayRef.current) {
       if (playCountRef.current >= MAX_PLAYS) {
         audio.pause();
         audio.currentTime = 0;
@@ -371,9 +388,7 @@ export default function ListeningFillBlanksScreen({
     if (!audio) return;
 
     setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
-    setCurrentTime(0);
-    setIsPlaying(false);
-    countedCurrentPlayRef.current = false;
+    setCurrentTime(audio.currentTime || 0);
   };
 
   const handleTimeUpdate = () => {
@@ -395,7 +410,7 @@ export default function ListeningFillBlanksScreen({
   };
 
   const handleNext = () => {
-    stopAudio(true);
+    stopAudio();
     onNext(answers);
   };
 
@@ -405,7 +420,7 @@ export default function ListeningFillBlanksScreen({
         <div className={styles.shell}>
           <div className={styles.card}>
             <h1 className={styles.title}>Listening Fill in the Blanks</h1>
-            <p className={styles.intro}>听力题目暂未就绪。</p>
+            <p className={styles.intro}>Listening item is not available.</p>
           </div>
         </div>
       </main>
@@ -427,20 +442,20 @@ export default function ListeningFillBlanksScreen({
           <div className={styles.audioBox}>
             <div className={styles.audioArea}>
               <p className={styles.intro}>
-                本题音频最多可播放 2 次。剩余：{remainingPlays} 次
+                This audio can be played up to 2 times. Remaining:{" "}
+                {remainingPlays}
               </p>
 
               {item.audioUrl ? (
                 <>
                   <audio
                     ref={audioRef}
+                    src={item.audioUrl}
                     preload="metadata"
                     onLoadedMetadata={handleLoadedMetadata}
                     onTimeUpdate={handleTimeUpdate}
                     onEnded={handleEnded}
-                  >
-                    <source src={item.audioUrl} type="audio/mpeg" />
-                  </audio>
+                  />
 
                   <div
                     style={{
@@ -467,9 +482,9 @@ export default function ListeningFillBlanksScreen({
                         cursor: playButtonDisabled ? "not-allowed" : "pointer",
                         boxShadow: "4px 4px 0 #111111",
                       }}
-                  >
-                    {isPlaying
-                      ? "Pause"
+                    >
+                      {isPlaying
+                        ? "Pause"
                         : playCount >= MAX_PLAYS
                         ? "No Plays Left"
                         : "Play Audio"}
@@ -511,26 +526,9 @@ export default function ListeningFillBlanksScreen({
                       />
                     </div>
                   </div>
-
-                  <div
-                    style={{
-                      marginTop: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "#5f6a78",
-                    }}
-                  >
-                    {isPlaying
-                      ? "播放过程中进度条已锁定。"
-                      : playCount >= MAX_PLAYS
-                      ? "已达到播放上限。"
-                      : "点击播放开始作答。播放过程中进度条会显示为灰色。"}
-                  </div>
                 </>
               ) : (
-                <div className={styles.audioPlaceholder}>
-                  音频暂未上传。
-                </div>
+                <div className={styles.audioPlaceholder}>Audio unavailable.</div>
               )}
             </div>
           </div>

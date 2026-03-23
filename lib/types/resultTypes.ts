@@ -5,6 +5,7 @@ export type DifficultyStats = {
 };
 
 export type ReadingStats = {
+   A: { correct: number; total: number };
   B: { correct: number; total: number };
   C: { correct: number; total: number };
 };

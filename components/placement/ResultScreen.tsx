@@ -29,12 +29,11 @@ export default function ResultScreen({
 }: ResultScreenProps) {
   const { scoreBandLabel, courseRecommendation } = getScoreProjection(score);
 
-  const normalizedReadingStats: DifficultyDistribution = {
-    A: { correct: 0, total: 0 },
-    B: readingStats.B,
-    C: readingStats.C,
-  };
-
+const normalizedReadingStats: DifficultyDistribution = {
+  A: readingStats.A ?? { correct: 0, total: 0 },
+  B: readingStats.B ?? { correct: 0, total: 0 },
+  C: readingStats.C ?? { correct: 0, total: 0 },
+};
   const foundationDiagnosis = getSectionDiagnosis(
     "foundation",
     difficultyStats
